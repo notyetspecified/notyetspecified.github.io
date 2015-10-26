@@ -1264,6 +1264,7 @@ pre code {
   }
   .col-lg-6 {
     width: 50%;
+	vertical-align: middle;
   }
   .col-lg-7 {
     width: 58.333333333333336%;
