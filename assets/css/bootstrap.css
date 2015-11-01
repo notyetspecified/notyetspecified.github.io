@@ -2401,6 +2401,18 @@ input[type="button"].btn-block {
   line-height: 1;
 }
 
+.glyphicon-console:before {
+  content: "\e254";
+}
+
+.glyphicon-menu-right:before {
+  content: "\e258";
+}
+
+.glyphicon-hand-right:before {
+  content: "\e127";
+}
+
 .glyphicon-asterisk:before {
   content: "\2a";
 }
