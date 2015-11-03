@@ -47,405 +47,405 @@
 
   <body>
 
+	<div class="vertical-center">
+		<div class="container">
+			<div class="col-lg-10 col-lg-offset-1">
+			
+				<!-- ===== vCard Navigation ===== -->
+				<div class="row w">
+					<div class="col-md-4">
+						<img class="img-responsive-centered" src="assets/img/avatar.jpg" alt="">
+						<ul class="nav nav-tabs nav-stacked" id="myTab">
+						  <li class="active"><a href="#about">About</a></li>
+						  <li><a href="#skills" onclick="pies()">Skills</a></li>
+						  <li><a href="#cv">Curriculum Vitae</a></li>
+						  <li><a href="#projects">Projects</a></li>
+						  <li><a href="#contact">Contact</a></li>
+						</ul>    			
+					</div><!-- col-md-4 -->
 
-    <div class="container">
-    	<div class="col-lg-10 col-lg-offset-1">
-    	
-    		<!-- ===== vCard Navigation ===== -->
-    		<div class="row w">
-    			<div class="col-md-4">
-    				<img class="img-responsive-centered" src="assets/img/avatar.jpg" alt="">
-					<ul class="nav nav-tabs nav-stacked" id="myTab">
-					  <li class="active"><a href="#about">About</a></li>
-					  <li><a href="#skills" onclick="pies()">Skills</a></li>
-					  <li><a href="#cv">Curriculum Vitae</a></li>
-					  <li><a href="#projects">Projects</a></li>
-					  <li><a href="#contact">Contact</a></li>
-					</ul>    			
-				</div><!-- col-md-4 -->
+				<!-- ===== vCard Content ===== -->
+					<script>
+						function pies()
+						{
+							var javascriptPieData = [
+								{
+									value: 70,
+									color:"#1D739B"
+								},
+								{
+									value : 30,
+									color : "#ecf0f1"
+								}
+							];
+							var javascriptPie = new Chart(document.getElementById("javascript").getContext("2d")).Pie(javascriptPieData);
+							
+							var html5PieData = [
+								{
+									value: 75,
+									color:"#1D739B"
+								},
+								{
+									value : 25,
+									color : "#ecf0f1"
+								}
+							];
+							var html5Pie = new Chart(document.getElementById("html5").getContext("2d")).Pie(html5PieData);
+							
+							var cPieData = [
+								{
+									value: 80,
+									color:"#1D739B"
+								},
+								{
+									value : 20,
+									color : "#ecf0f1"
+								}
+							];
+							var cPie = new Chart(document.getElementById("cpp").getContext("2d")).Pie(cPieData);
+							
+							var javaPieData = [
+								{
+									value: 80,
+									color:"#1D739B"
+								},
+								{
+									value : 20,
+									color : "#ecf0f1"
+								}
+							];
+							var javaPie = new Chart(document.getElementById("java").getContext("2d")).Pie(javaPieData);
+							
+							var androidPieData = [
+								{
+									value: 70,
+									color:"#1D739B"
+								},
+								{
+									value : 30,
+									color : "#ecf0f1"
+								}
+							];
+							var androidPie = new Chart(document.getElementById("android").getContext("2d")).Pie(androidPieData);
+							
+							var cssPieData = [
+								{
+									value: 75,
+									color:"#1D739B"
+								},
+								{
+									value : 25,
+									color : "#ecf0f1"
+								}
+							];
+							var cssPie = new Chart(document.getElementById("css").getContext("2d")).Pie(cssPieData);
+						}
+					</script>
+					<div class="col-md-8">
+						<div class="tab-content">
+						
+						  <!-- ===== First Tab ===== -->
+						  <div class="tab-pane active" id="about">
+							<h3>João Ladeiras</h3>
+							<h5>Software Engineer</h5>
+							<hr>
+							<p class="sm">
+								<grey>Name:</grey> João Ladeiras<br/>
+								<grey>Nationality:</grey> Portuguese<br/>
+								<grey>Languages:</grey> Portuguese (native), English (fluent), Spanish (basic)<br/>
+								<grey>Where I live:</grey> Oporto, Portugal<br/>
+							</p>
+							<p class="sm">
+								<grey>Academic Training:</grey> Master's Degree in Informatics and Computing Engineering at FEUP - Faculdade de Engenharia da Universidade do Porto (College of Engineering, Oporto University)<br/>
+							</p>
+							<p class="sm">
+								<grey>Interests:</grey> Data Mining, Bioinformatics, Web Development, Mobile Application Development<br/>
+							</p>
+							<p class="sm">
+								<grey>Hobbies:</grey><a href="https://www.reddit.com/r/pcmasterrace"> Gaming</a>, </grey><a href="http://www.imdb.com/user/ur43954202/ratings"> Films and TV-Shows</a><br/>
+							</p>
 
-    		<!-- ===== vCard Content ===== -->
-				<script>
-					function pies()
-					{
-						var javascriptPieData = [
-							{
-								value: 70,
-								color:"#1D739B"
-							},
-							{
-								value : 30,
-								color : "#ecf0f1"
-							}
-						];
-						var javascriptPie = new Chart(document.getElementById("javascript").getContext("2d")).Pie(javascriptPieData);
-						
-						var html5PieData = [
-							{
-								value: 75,
-								color:"#1D739B"
-							},
-							{
-								value : 25,
-								color : "#ecf0f1"
-							}
-						];
-						var html5Pie = new Chart(document.getElementById("html5").getContext("2d")).Pie(html5PieData);
-						
-						var cPieData = [
-							{
-								value: 80,
-								color:"#1D739B"
-							},
-							{
-								value : 20,
-								color : "#ecf0f1"
-							}
-						];
-						var cPie = new Chart(document.getElementById("cpp").getContext("2d")).Pie(cPieData);
-						
-						var javaPieData = [
-							{
-								value: 80,
-								color:"#1D739B"
-							},
-							{
-								value : 20,
-								color : "#ecf0f1"
-							}
-						];
-						var javaPie = new Chart(document.getElementById("java").getContext("2d")).Pie(javaPieData);
-						
-						var androidPieData = [
-							{
-								value: 70,
-								color:"#1D739B"
-							},
-							{
-								value : 30,
-								color : "#ecf0f1"
-							}
-						];
-						var androidPie = new Chart(document.getElementById("android").getContext("2d")).Pie(androidPieData);
-						
-						var cssPieData = [
-							{
-								value: 75,
-								color:"#1D739B"
-							},
-							{
-								value : 25,
-								color : "#ecf0f1"
-							}
-						];
-						var cssPie = new Chart(document.getElementById("css").getContext("2d")).Pie(cssPieData);
-					}
-				</script>
-    			<div class="col-md-8">
-	    			<div class="tab-content">
-	    			
-	    			  <!-- ===== First Tab ===== -->
-					  <div class="tab-pane active" id="about">
-					  	<h3>João Ladeiras</h3>
-					  	<h5>Software Engineer</h5>
-					  	<hr>
-						<p class="sm">
-							<grey>Name:</grey> João Ladeiras<br/>
-							<grey>Nationality:</grey> Portuguese<br/>
-							<grey>Languages:</grey> Portuguese (native), English (fluent), Spanish (basic)<br/>
-							<grey>Where I live:</grey> Oporto, Portugal<br/>
-						</p>
-						<p class="sm">
-							<grey>Academic Training:</grey> Master's Degree in Informatics and Computing Engineering at FEUP - Faculdade de Engenharia da Universidade do Porto (College of Engineering, Oporto University)<br/>
-						</p>
-						<p class="sm">
-							<grey>Interests:</grey> Data Mining, Bioinformatics, Web Development, Mobile Application Development<br/>
-						</p>
-						<p class="sm">
-							<grey>Hobbies:</grey><a href="https://www.reddit.com/r/pcmasterrace"> Gaming</a>, </grey><a href="http://www.imdb.com/user/ur43954202/ratings"> Films and TV-Shows</a><br/>
-						</p>
-
-					  </div><!-- tab about -->
-					  
-	    			  <!-- ===== Second Tab ===== -->
-					  <div class="tab-pane" id="skills">
-						<h4>Skills</h4>
-						<hr>
-						<div id="skillsmain">
-							<h5>Main</h5>
-							<div class="container">
-								<div class="row-left">
-									<div class="col-lg-3 col-left">
-										<p class="ss">Java</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">C++</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">SQL</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">R</p>
-									</div>
-									<!-- Old Skills -->
-									<!-- <div class="col-lg-6 col-left">
-										<p><i class="icon-chevron-right"></i> Android</p>
-										<i class="icon-chevron-down"></i> Web </br>
-										&emsp;<darkgrey>Django REST</darkgrey></br>
-										&emsp;<darkgrey>.NET</darkgrey></br>
-										</br>
-										<p><i class="icon-chevron-right"></i> Machine Learning</p>
-										<p><i class="icon-chevron-right"></i> Raspberry Pi</p>
-									</div>
-									<div class="col-lg-6 col-left">
-										<i class="icon-chevron-down"></i> Languages </br>
-										&emsp;<darkgrey>Java</grey></br>
-										&emsp;<darkgrey>C/C++/C#</darkgrey></br>
-										&emsp;<darkgrey>Python</darkgrey></br>
-										&emsp;<darkgrey>HTML</darkgrey></br>
-										&emsp;<darkgrey>JavaScript</darkgrey></br>
-										&emsp;<darkgrey>R</darkgrey></br>
-										&emsp;<darkgrey>Prolog</darkgrey></br>
-										&emsp;<darkgrey>SQL/PLSQL/noSQL</darkgrey></br>
-									</div> -->
-									
-									<!-- Graphs -->
-									<!-- <div class="col-lg-4 col-centered">
-										<canvas id="cpp" height="100" width="100"></canvas>
-										<p>C/C++/C#</p>
-										<br>
-									</div>
-									<div class="col-lg-4 col-centered">
-										<canvas id="java" height="100" width="100"></canvas>
-										<p>Java</p>
-										<br>
-									</div>
-									<div class="col-lg-4 col-centered">
-										<canvas id="android" height="100" width="100"></canvas>
-										<p>Android</p>
-										<br>
-									</div>
-									<div class="col-lg-4 col-centered">
-										<canvas id="html5" height="100" width="100"></canvas>
-										<p>HTML5</p>
-										<br>
-									</div>
-									<div class="col-lg-4 col-centered">
-										<canvas id="javascript" height="100" width="100"></canvas>
-										<p>JavaScript</p>
-										<br>
-									</div>
-									<div class="col-lg-4 col-centered">
-										<canvas id="css" height="100" width="100"></canvas>
-										<p>SQL/PLSQL/noSQL</p>
-										<br>
-									</div> -->
-									
-								</div><!--/.row -->
+						  </div><!-- tab about -->
+						  
+						  <!-- ===== Second Tab ===== -->
+						  <div class="tab-pane" id="skills">
+							<h4>Skills</h4>
+							<hr>
+							<div id="skillsmain">
+								<h5>Main</h5>
+								<div class="container">
+									<div class="row-left">
+										<div class="col-lg-3 col-left">
+											<p class="ss">Java</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">C++</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">SQL</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">R</p>
+										</div>
+										<!-- Old Skills -->
+										<!-- <div class="col-lg-6 col-left">
+											<p><i class="icon-chevron-right"></i> Android</p>
+											<i class="icon-chevron-down"></i> Web </br>
+											&emsp;<darkgrey>Django REST</darkgrey></br>
+											&emsp;<darkgrey>.NET</darkgrey></br>
+											</br>
+											<p><i class="icon-chevron-right"></i> Machine Learning</p>
+											<p><i class="icon-chevron-right"></i> Raspberry Pi</p>
+										</div>
+										<div class="col-lg-6 col-left">
+											<i class="icon-chevron-down"></i> Languages </br>
+											&emsp;<darkgrey>Java</grey></br>
+											&emsp;<darkgrey>C/C++/C#</darkgrey></br>
+											&emsp;<darkgrey>Python</darkgrey></br>
+											&emsp;<darkgrey>HTML</darkgrey></br>
+											&emsp;<darkgrey>JavaScript</darkgrey></br>
+											&emsp;<darkgrey>R</darkgrey></br>
+											&emsp;<darkgrey>Prolog</darkgrey></br>
+											&emsp;<darkgrey>SQL/PLSQL/noSQL</darkgrey></br>
+										</div> -->
+										
+										<!-- Graphs -->
+										<!-- <div class="col-lg-4 col-centered">
+											<canvas id="cpp" height="100" width="100"></canvas>
+											<p>C/C++/C#</p>
+											<br>
+										</div>
+										<div class="col-lg-4 col-centered">
+											<canvas id="java" height="100" width="100"></canvas>
+											<p>Java</p>
+											<br>
+										</div>
+										<div class="col-lg-4 col-centered">
+											<canvas id="android" height="100" width="100"></canvas>
+											<p>Android</p>
+											<br>
+										</div>
+										<div class="col-lg-4 col-centered">
+											<canvas id="html5" height="100" width="100"></canvas>
+											<p>HTML5</p>
+											<br>
+										</div>
+										<div class="col-lg-4 col-centered">
+											<canvas id="javascript" height="100" width="100"></canvas>
+											<p>JavaScript</p>
+											<br>
+										</div>
+										<div class="col-lg-4 col-centered">
+											<canvas id="css" height="100" width="100"></canvas>
+											<p>SQL/PLSQL/noSQL</p>
+											<br>
+										</div> -->
+										
+									</div><!--/.row -->
+									<br>
+								</div><!--/.container -->
+							</div><!--/ #skillsmain -->
+							<hr>
+							<div id="skillsworked">
+								<h5>Some Experience</h5>
+								<div class="container">
+									<div class="row-left">
+										<div class="col-lg-3 col-left">
+											<p class="ss">C</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">C#</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">Python</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">Prolog</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">HTML5</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">JavaScript</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">CSS</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">Python</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">PL/SQL</p>
+										</div>
+										<div class="col-lg-3 col-left">
+											<p class="ss">noSQL</p>
+										</div>
+									</div><!--/.row -->
+									<br>
+								</div><!--/.container -->
 								<br>
-							</div><!--/.container -->
-						</div><!--/ #skillsmain -->
-						<hr>
-						<div id="skillsworked">
-							<h5>Some Experience</h5>
-							<div class="container">
-								<div class="row-left">
-									<div class="col-lg-3 col-left">
-										<p class="ss">C</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">C#</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">Python</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">Prolog</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">HTML5</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">JavaScript</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">CSS</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">Python</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">PL/SQL</p>
-									</div>
-									<div class="col-lg-3 col-left">
-										<p class="ss">noSQL</p>
-									</div>
-								</div><!--/.row -->
-								<br>
-							</div><!--/.container -->
+								<h5>Platforms and Others</h5>
+								<div class="container">
+									<div class="row-left">
+										<div class="col-lg-4 col-left">
+											<p class="ss">Android</p>
+										</div>
+										<div class="col-lg-4 col-left">
+											<p class="ss">.NET</p>
+										</div>
+										<div class="col-lg-4 col-left">
+											<p class="ss">Django REST</p>
+										</div>
+										<div class="col-lg-4 col-left">
+											<p class="ss">AngularJS</p>
+										</div>
+										<div class="col-lg-4 col-left">
+											<p class="ss">Machine Learning</p>
+										</div>
+										<div class="col-lg-4 col-left">
+											<p class="ss">Raspberry Pi</p>
+										</div>
+									</div><!--/.row -->
+									<br>
+								</div><!--/.container -->
+							</div><!--/ #skillsworked -->
+							<hr>
+							<div id="skillslearn">
+								<h5>Would Like to Learn</h5>
+								<div class="container">
+									<div class="row-left">
+										<div class="col-lg-4 col-left">
+											<p class="ss">Ruby on Rails</p>
+										</div>
+									</div><!--/.row -->
+									<br>
+								</div><!--/.container -->
+							</div><!--/ #skillslearn -->
+						  </div><!-- Tab Skills -->
+						  
+						  <!-- ===== Third Tab ===== -->
+						  <div class="tab-pane" id="projects">
+						  <h4>Projects</h4>
+							<hr>
 							<br>
-							<h5>Platforms and Others</h5>
-							<div class="container">
-								<div class="row-left">
-									<div class="col-lg-4 col-left">
-										<p class="ss">Android</p>
-									</div>
-									<div class="col-lg-4 col-left">
-										<p class="ss">.NET</p>
-									</div>
-									<div class="col-lg-4 col-left">
-										<p class="ss">Django REST</p>
-									</div>
-									<div class="col-lg-4 col-left">
-										<p class="ss">AngularJS</p>
-									</div>
-									<div class="col-lg-4 col-left">
-										<p class="ss">Machine Learning</p>
-									</div>
-									<div class="col-lg-4 col-left">
-										<p class="ss">Raspberry Pi</p>
-									</div>
-								</div><!--/.row -->
-								<br>
-							</div><!--/.container -->
-						</div><!--/ #skillsworked -->
-						<hr>
-						<div id="skillslearn">
-							<h5>Would Like to Learn</h5>
-							<div class="container">
-								<div class="row-left">
-									<div class="col-lg-4 col-left">
-										<p class="ss">Ruby on Rails</p>
-									</div>
-								</div><!--/.row -->
-								<br>
-							</div><!--/.container -->
-						</div><!--/ #skillslearn -->
-					  </div><!-- Tab Skills -->
-					  
-	    			  <!-- ===== Third Tab ===== -->
-					  <div class="tab-pane" id="projects">
-					  <h4>Projects</h4>
-						<hr>
-						<br>
-						  <div class="row row-centered">
-							  <div class="col-xs-3 col-centered">
-								<a href="https://www.youtube.com/embed/G48mZm7KGL4?autoplay=1&rel=0&amp;wmode=transparent" 
-										onclick="return hs.htmlExpand(this, {objectType: 'iframe', width: 600, height: 360, 
-										allowSizeReduction: false, wrapperClassName: 'draggable-header no-footer', 
-										preserveContent: false, objectLoadTime: 'after'})"
-										class="highslide">
-									<img class="img-responsive-centered" src="assets/img/bioterium.png" alt="">
-									Bioterium
-								</a>
-							  </div><!-- col-xs-8 -->
-							  <div class="col-xs-3 col-centered">
-								<a href="https://www.youtube.com/embed/videoseries?list=PL54gydE8eCCpzeSeFT7xXd2gQln5TDjyj&autoplay=1&rel=0&amp;wmode=transparent" 
-										onclick="return hs.htmlExpand(this, {objectType: 'iframe', width: 360, height: 610, 
-										allowSizeReduction: false, wrapperClassName: 'draggable-header no-footer', 
-										preserveContent: false, objectLoadTime: 'after'})"
-										class="highslide">
-									<img class="img-responsive-centered" src="assets/img/onmove.png" alt="">
-									On The Move
-								</a>
-							  </div><!-- col-xs-8 -->
-							  <div class="col-xs-3 col-centered">
-								<a href="https://www.youtube.com/embed/wNaZVLdAG0U?autoplay=1&rel=0&amp;wmode=transparent" 
-										onclick="return hs.htmlExpand(this, {objectType: 'iframe', width: 360, height: 550, 
-										allowSizeReduction: false, wrapperClassName: 'draggable-header no-footer', 
-										preserveContent: false, objectLoadTime: 'after'})"
-										class="highslide">
-									<img class="img-responsive-centered" src="assets/img/avict.png" alt="">
-									Avict
-								</a>
-							  </div><!-- col-xs-8 -->
-						  </div><!-- row -->
-						  <br>
-						  <br>
-						  <div class="row row-centered">
-							  
-							  <div class="col-xs-3 col-centered">
-								<a href="https://paginas.fe.up.pt/~ei05034/DISS/wiki/doku.php" target="_blank">
-									<img class="img-responsive-centered" src="assets/img/FEUP.png" alt="">
-									Master's Thesis
-								</a>
-							  </div><!-- col-xs-8 -->
-						  </div><!-- row -->
-					  </div><!-- /Tab Projects -->
-					  
-	    			  <!-- ===== Fourth Tab ===== -->
-					  <div class="tab-pane" id="contact">
-						  <h4>Contact Information</h4>
-						  <hr>
-						  <div class="row">
-							  <div class="col-xs-6">
-								  <p class="sm">
-								  	<a href="https://github.com/Ladeiras" target="_blank"><i class="icon-globe"></i> - ladeiras.github.io <br/></a>
-									<a href="mailto:jtladeiras@gmail.com" target="_blank"><i class="icon-envelope"></i> - jtladeiras@gmail.com</a>
-								  </p>
-							  </div><!-- col-xs-6 -->
-							  
-							  <div class="col-xs-6">
-								  <p class="sm">
-								  	<i class="icon-phone"></i> - +351 938074216 <br/>
-									<i class="icon-skype"></i> - joao_ladeiras <br/>
-								  </p>
-							  </div><!-- col-xs-6 -->
-						  </div><!-- row -->
+							  <div class="row row-centered">
+								  <div class="col-xs-3 col-centered">
+									<a href="https://www.youtube.com/embed/G48mZm7KGL4?autoplay=1&rel=0&amp;wmode=transparent" 
+											onclick="return hs.htmlExpand(this, {objectType: 'iframe', width: 600, height: 360, 
+											allowSizeReduction: false, wrapperClassName: 'draggable-header no-footer', 
+											preserveContent: false, objectLoadTime: 'after'})"
+											class="highslide">
+										<img class="img-responsive-centered" src="assets/img/bioterium.png" alt="">
+										Bioterium
+									</a>
+								  </div><!-- col-xs-8 -->
+								  <div class="col-xs-3 col-centered">
+									<a href="https://www.youtube.com/embed/videoseries?list=PL54gydE8eCCpzeSeFT7xXd2gQln5TDjyj&autoplay=1&rel=0&amp;wmode=transparent" 
+											onclick="return hs.htmlExpand(this, {objectType: 'iframe', width: 360, height: 610, 
+											allowSizeReduction: false, wrapperClassName: 'draggable-header no-footer', 
+											preserveContent: false, objectLoadTime: 'after'})"
+											class="highslide">
+										<img class="img-responsive-centered" src="assets/img/onmove.png" alt="">
+										On The Move
+									</a>
+								  </div><!-- col-xs-8 -->
+								  <div class="col-xs-3 col-centered">
+									<a href="https://www.youtube.com/embed/wNaZVLdAG0U?autoplay=1&rel=0&amp;wmode=transparent" 
+											onclick="return hs.htmlExpand(this, {objectType: 'iframe', width: 360, height: 550, 
+											allowSizeReduction: false, wrapperClassName: 'draggable-header no-footer', 
+											preserveContent: false, objectLoadTime: 'after'})"
+											class="highslide">
+										<img class="img-responsive-centered" src="assets/img/avict.png" alt="">
+										Avict
+									</a>
+								  </div><!-- col-xs-8 -->
+							  </div><!-- row -->
+							  <br>
+							  <br>
+							  <div class="row row-centered">
+								  
+								  <div class="col-xs-3 col-centered">
+									<a href="https://paginas.fe.up.pt/~ei05034/DISS/wiki/doku.php" target="_blank">
+										<img class="img-responsive-centered" src="assets/img/FEUP.png" alt="">
+										Master's Thesis
+									</a>
+								  </div><!-- col-xs-8 -->
+							  </div><!-- row -->
+						  </div><!-- /Tab Projects -->
 						  
-						  <h4>Social Links</h4>
-						  <hr>
-						  <div class="row">
-							  <div class="col-xs-6">
-								  <p class="sm">
-								  	<a href="https://www.facebook.com/joao.ladeiras.3" target="_blank"><i class="icon-facebook"></i> - joao.ladeiras.3 <br/></a>
-									<a href="https://www.linkedin.com/in/jtladeiras" target="_blank"><i class="icon-linkedin"></i> - jtladeiras <br/></a>
-								  </p>
-							  </div><!-- col-xs-6 -->
+						  <!-- ===== Fourth Tab ===== -->
+						  <div class="tab-pane" id="contact">
+							  <h4>Contact Information</h4>
+							  <hr>
+							  <div class="row">
+								  <div class="col-xs-6">
+									  <p class="sm">
+										<a href="https://github.com/Ladeiras" target="_blank"><i class="icon-globe"></i> - ladeiras.github.io <br/></a>
+										<a href="mailto:jtladeiras@gmail.com" target="_blank"><i class="icon-envelope"></i> - jtladeiras@gmail.com</a>
+									  </p>
+								  </div><!-- col-xs-6 -->
+								  
+								  <div class="col-xs-6">
+									  <p class="sm">
+										<i class="icon-phone"></i> - +351 938074216 <br/>
+										<i class="icon-skype"></i> - joao_ladeiras <br/>
+									  </p>
+								  </div><!-- col-xs-6 -->
+							  </div><!-- row -->
 							  
-							  <div class="col-xs-6">
-								  <p class="sm">
-									<a href="https://twitter.com/JTLadeiras" target="_blank"><i class="icon-twitter"></i> - @JTLadeiras</a>
-								  </p>
-							  </div><!-- col-xs-6 -->
-						  </div><!-- row -->
+							  <h4>Social Links</h4>
+							  <hr>
+							  <div class="row">
+								  <div class="col-xs-6">
+									  <p class="sm">
+										<a href="https://www.facebook.com/joao.ladeiras.3" target="_blank"><i class="icon-facebook"></i> - joao.ladeiras.3 <br/></a>
+										<a href="https://www.linkedin.com/in/jtladeiras" target="_blank"><i class="icon-linkedin"></i> - jtladeiras <br/></a>
+									  </p>
+								  </div><!-- col-xs-6 -->
+								  
+								  <div class="col-xs-6">
+									  <p class="sm">
+										<a href="https://twitter.com/JTLadeiras" target="_blank"><i class="icon-twitter"></i> - @JTLadeiras</a>
+									  </p>
+								  </div><!-- col-xs-6 -->
+							  </div><!-- row -->
+							  
+							  <h4>Other</h4>
+							  <hr>
+							  <div class="row">
+								  <div class="col-xs-6">
+									  <p class="sm">
+										<a href="https://github.com/Ladeiras" target="_blank"><i class="icon-github"></i> - ladeiras <br/></a>
+									  </p>
+								  </div><!-- col-xs-6 -->
+								  
+								  <div class="col-xs-6">
+									  <p class="sm">
+									  </p>
+								  </div><!-- col-xs-6 -->
+							  </div><!-- row -->
+						  </div><!-- Tab Contact -->
 						  
-						  <h4>Other</h4>
-						  <hr>
-						  <div class="row">
-							  <div class="col-xs-6">
-								  <p class="sm">
-								  	<a href="https://github.com/Ladeiras" target="_blank"><i class="icon-github"></i> - ladeiras <br/></a>
-								  </p>
+						  <!-- ===== Fifth Tab ===== -->
+						  <div class="tab-pane" id="cv">
+							  <h4>Curriculum Vitae</h4>
+							  <hr>
+							  <div class="row">
+								  <div class="col-lg-8">
+									  <p class="sm">
+										You can download my Curriculum Vitae in PDF Format:<br/>
+										<a href="upload/CV-JoãoLadeiras-EN.pdf" target="_blank"><i class="icon-download"></i>&nbsp;&nbsp;<grey>CV-JoãoLadeiras-EN.pdf</grey></a><br/>
+										<a href="upload/CV-Europass-20151026-ChavesMirandaLadeiras-PT.pdf" target="_blank"><i class="icon-download"></i>&nbsp;&nbsp;<grey>CV-Europass-JoãoLadeiras-PT.pdf</grey></a>
+									  </p>
+								  </div>
 							  </div><!-- col-xs-6 -->
-							  
-							  <div class="col-xs-6">
-								  <p class="sm">
-								  </p>
-							  </div><!-- col-xs-6 -->
-						  </div><!-- row -->
-					  </div><!-- Tab Contact -->
-					  
-					  <!-- ===== Fifth Tab ===== -->
-					  <div class="tab-pane" id="cv">
-						  <h4>Curriculum Vitae</h4>
-						  <hr>
-						  <div class="row">
-							  <div class="col-lg-8">
-								  <p class="sm">
-									You can download my Curriculum Vitae in PDF Format:<br/>
-									<a href="upload/CV-JoãoLadeiras-EN.pdf" target="_blank"><i class="icon-download"></i>&nbsp;&nbsp;<grey>CV-JoãoLadeiras-EN.pdf</grey></a><br/>
-									<a href="upload/CV-Europass-20151026-ChavesMirandaLadeiras-PT.pdf" target="_blank"><i class="icon-download"></i>&nbsp;&nbsp;<grey>CV-Europass-JoãoLadeiras-PT.pdf</grey></a>
-								  </p>
-							  </div>
-						  </div><!-- col-xs-6 -->
-					  </div><!-- Tab Contact -->
-					</div><!-- Tab Content -->
-    			</div><!-- col-md-8 -->
-    		</div><!-- row w -->
-    	</div><!-- col-lg-6 -->
-    </div><!-- /.container -->
-
+						  </div><!-- Tab Contact -->
+						</div><!-- Tab Content -->
+					</div><!-- col-md-8 -->
+				</div><!-- row w -->
+			</div><!-- col-lg-6 -->
+		</div><!-- /.container -->
+	</div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
