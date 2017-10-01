@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="net.ladeiras.about" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>João Ladeiras</name>
+    <name>ladeiras</name>
     <description>About João Ladeiras</description>
     <author email="jtladeiras@gmail.com" href="http://ladeiras.github.io/">João Ladeiras</author>
     <content src="index.html" />
@@ -15,7 +15,7 @@
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="BackupWebStorage" value="none" />
-    <preference name="SplashScreen" value="none"/>
+    <preference name="SplashScreen" value="none" />
     <engine name="browser" spec="^4.1.0" />
     <plugin name="cordova-plugin-device" spec="^1.1.4" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.1" />
