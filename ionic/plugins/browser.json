@@ -1,0 +1,21 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "net.ladeiras.about"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "net.ladeiras.about"
+        },
+        "ionic-plugin-keyboard": {
+            "PACKAGE_NAME": "net.ladeiras.about"
+        }
+    },
+    "dependent_plugins": {}
+}
