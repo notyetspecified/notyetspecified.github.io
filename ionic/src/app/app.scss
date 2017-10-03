@@ -14,3 +14,28 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+[custom-center] {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  align-self: stretch;
+}
+
+[custom-inline] {
+  display: inline;
+}
+
+[custom-right] {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+[custom-left] {
+  display: flex;
+  flex: 1;
+  justify-content: flex-start;
+  align-items: center;
+}
