@@ -11,17 +11,76 @@
 
 </ion-header>
 
-
 <ion-content padding>
-  <div custom-center>
-    <img avatar src="./assets/img/avatar.png">
+  <div *ngIf="tab === 'about'">
+    <div custom-center>
+      <img avatar src="./assets/img/avatar.png">
+    </div>
+    <!-- <p custom-center>
+      Website under construction...
+    </p>
+    <p custom-center>
+      Check back soon!
+    </p> -->
+    <ion-grid>
+      <ion-row>
+        <ion-col text-right>
+          <p><strong>Name</strong></p>
+        </ion-col>
+        <ion-col>
+          <p>João Ladeiras</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col text-right>
+          <p><strong>Nationality</strong></p>
+        </ion-col>
+        <ion-col>
+          <p>Portuguese</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col text-right>
+          <p><strong>Languages</strong></p>
+        </ion-col>
+        <ion-col>
+          <p>Portuguese (native)</p>
+          <p>English (fluent)</p>
+          <p>Spanish (basic)</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col text-right>
+          <p><strong>Where I live</strong></p>
+        </ion-col>
+        <ion-col>
+          <p>Porto, Portugal</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col text-right>
+          <p><strong>Academic Training</strong></p>
+        </ion-col>
+        <ion-col>
+          <p>Master's Degree in Informatics and Computing Engineering at FEUP - Faculdade de Engenharia da Universidade do Porto (College of Engineering, Oporto University)</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col text-right>
+          <p><strong>Interests</strong></p>
+        </ion-col>
+        <ion-col>
+          <p>Data Mining, Bioinformatics, Web Development, Mobile Application Development</p>
+        </ion-col>
+      </ion-row>
+
+    </ion-grid>
   </div>
-  <p custom-center>
-    Website under construction...
-  </p>
-  <p custom-center>
-    Check back soon!
-  </p>
 </ion-content>
 
 <ion-footer>
