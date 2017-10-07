@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { IonicPage } from 'ionic-angular';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Component, ViewChild } from '@angular/core';
+import { IonicPage, Content } from 'ionic-angular';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @IonicPage()
 @Component({
@@ -8,18 +8,29 @@ import { DomSanitizer } from '@angular/platform-browser';
   templateUrl: 'ytmodal.html',
 })
 export class YtModalPage {
+  @ViewChild(Content) content: Content;
+  @ViewChild('videoPlayer') videoplayer: any;
   private title: string = 'OnTheMove';
-  private link: string = 'https://www.youtube.com/embed/videoseries?list=PL54gydE8eCCpzeSeFT7xXd2gQln5TDjyj&amp;autoplay=1';
-  private width: number = 350;
-  private height: number = 581;
-  private url: string;
+  private videoSource: string = '../../assets/video/onthemove.mp4';
+  private height: number;
 
-  constructor(private sanitizer: DomSanitizer) {
-    this.url = `${this.link}&amp;rel=0&amp;wmode=transparent`;
-    console.warn(this.url);
+  constructor() {
   }
 
-  getURL() {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
+  ngDoCheck() {
+    this.height = this.content.contentHeight - 40;
+    console.warn(this.content.contentHeight);
+  }
+
+  ionViewDidEnter() {
+    this.videoplayer.nativeElement.play();
+  }
+
+  toggleVideo(event: any) {
+    if(this.videoplayer.nativeElement.paused) {
+      this.videoplayer.nativeElement.play();
+    } else {
+      this.videoplayer.nativeElement.pause();
+    }
   }
 }
