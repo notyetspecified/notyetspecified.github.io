@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{data.title}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <div custom-center>
+          <img logo [src]="data.logoSource">
+        </div>
+        <p><strong>{{data.title}}</strong> (<i>{{data.date}}</i>): {{data.description}}</p>
+      </ion-col>
+      <ion-col>
+        <div custom-center no-padding>
+          <video controls [width]="width" [height]="height" (click)="toggleVideo()" #videoPlayer>
+            <source [src]="data.videoSource" type="video/mp4" />
+            Browser not supported
+          </video>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
