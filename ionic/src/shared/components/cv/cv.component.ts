@@ -6,4 +6,8 @@ import { Component } from '@angular/core';
 })
 export class CvComponent {
   constructor() {}
+
+  openURL(url: string) {
+    window.open(url);
+  }
 }
