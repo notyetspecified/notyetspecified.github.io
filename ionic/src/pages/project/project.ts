@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, Content, NavParams } from 'ionic-angular';
+import { IonicPage, Content, NavParams, ViewController } from 'ionic-angular';
 
 @IonicPage()
 @Component({
@@ -15,20 +15,25 @@ export class ProjectPage {
   private height: number;
   private width: number;
 
-  constructor(navParams: NavParams) {
+  constructor(navParams: NavParams, private viewController: ViewController) {
     this.data = navParams.data;
-    this.data.videoSource = '../../assets/video/' + navParams.data.videoSource;
-    this.data.logoSource = '../../assets/img/logo/' + navParams.data.logoSource;
-
   }
 
   ngDoCheck() {
-    if (window.innerWidth > 768) {
-      this.width = this.content.contentWidth / 2;
-      this.height = this.content.contentHeight - 40;
+    if (this.data.horizontal) {
+      if (window.innerWidth > 768) {
+        this.width = this.content.contentWidth - 80;
+      } else {
+        this.width = this.content.contentWidth;
+      }
     } else {
-      this.width = this.content.contentWidth;
-      this.height = this.content.contentHeight - 40;
+      if (window.innerWidth > 768) {
+        this.width = this.content.contentWidth / 2;
+        this.height = this.content.contentHeight - 40;
+      } else {
+        this.width = this.content.contentWidth;
+        this.height = this.content.contentHeight - 40;
+      }
     }
   }
 
@@ -43,5 +48,9 @@ export class ProjectPage {
     } else {
       this.videoplayer.nativeElement.pause();
     }
+  }
+
+  close() {
+    this.viewController.dismiss();
   }
 }

@@ -9,10 +9,18 @@ page-project {
   }
 
   [logo] {
-    max-width: 10em;
-    max-height: 10em;
+    max-width: 10rem;
+    max-height: 10rem;
     width: auto;
     height: auto;
-    margin: 1em 0;
+    margin: 1rem 0;
+  }
+
+  [logo-horizontal] {
+    max-width: 8rem;
+    max-height: 8rem;
+    width: auto;
+    height: auto;
+    margin: 1rem 0;
   }
 }

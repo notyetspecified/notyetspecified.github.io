@@ -1,2 +1,14 @@
 jl-projects {
+  [logo] {
+    max-width: 10rem;
+    max-height: 10rem;
+    width: auto;
+    height: auto;
+    margin: 1rem 0;
+    margin-top: 2rem;
+  }
+
+  [pointer] {
+    cursor: pointer;
+  }
 }
