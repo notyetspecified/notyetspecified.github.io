@@ -1,5 +1,4 @@
 <ion-header>
-
   <ion-toolbar>
     <p padding-left title>
       João Ladeiras
@@ -8,43 +7,32 @@
       Software Engineer
     </p>
   </ion-toolbar>
-
 </ion-header>
 
-
 <ion-content padding>
-  <div custom-center>
-    <img avatar src="./assets/img/avatar.png">
-  </div>
-  <p custom-center>
-    Website under construction...
-  </p>
-  <p custom-center>
-    Check back soon!
-  </p>
+  <jl-about *ngIf="tab === 'about'"></jl-about>
+  <jl-skills *ngIf="tab === 'skills'"></jl-skills>
+  <jl-cv *ngIf="tab === 'cv'"></jl-cv>
+  <jl-projects *ngIf="tab === 'projects'"></jl-projects>
+  <jl-contact *ngIf="tab === 'contact'"></jl-contact>
 </ion-content>
 
 <ion-footer>
   <ion-segment [(ngModel)]="tab" color="primary">
     <ion-segment-button value="about">
       About
-        <!-- <ion-icon name="camera"></ion-icon> -->
     </ion-segment-button>
     <ion-segment-button value="skills">
       Skills
-        <!-- <ion-icon name="camera"></ion-icon> -->
     </ion-segment-button>
     <ion-segment-button value="cv">
       CV
-        <!-- <ion-icon name="camera"></ion-icon> -->
     </ion-segment-button>
     <ion-segment-button value="projects">
       Projects
-        <!-- <ion-icon name="camera"></ion-icon> -->
     </ion-segment-button>
     <ion-segment-button value="contact">
       Contact
-        <!-- <ion-icon name="camera"></ion-icon> -->
     </ion-segment-button>
   </ion-segment>
 </ion-footer>

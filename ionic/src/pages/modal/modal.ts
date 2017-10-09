@@ -7,10 +7,11 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
   templateUrl: 'modal.html',
 })
 export class ModalPage {
-
   tab: string = 'about';
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
-  }
+  constructor(public navCtrl: NavController, public navParams: NavParams) {}
 
+  segmentChanged(event: any) {
+    console.warn(event);
+  }
 }

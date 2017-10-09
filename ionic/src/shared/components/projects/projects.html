@@ -1,0 +1,16 @@
+<ion-grid>
+  <ion-row>
+    <ion-col pointer *ngFor="let project of projects" (tap)="openProject(project)">
+      <div custom-center>
+        <img logo src="../../assets/img/logo/{{project.logoSource}}">
+      </div>
+      <p custom-center><strong>{{project.title}}</strong></p>
+    </ion-col>
+    <ion-col pointer (tap)="openURL('https://translate.google.com/translate?sl=pt&u=https://paginas.fe.up.pt/~ei05034/DISS/wiki/doku.php')">
+      <div custom-center>
+        <img logo src="../../assets/img/logo/mt.png">
+      </div>
+      <p custom-center><strong>Master's Thesis</strong></p>
+    </ion-col>
+  </ion-row>
+</ion-grid>
