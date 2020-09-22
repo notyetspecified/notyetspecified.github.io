@@ -1,0 +1,28 @@
+<ion-header class="ion-padding">
+  <ion-toolbar color="darker">
+    <p title>João Ladeiras</p>
+    <p subtitle>Software Engineer</p>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="dark" class="ion-padding">
+  <jl-about *ngIf="tab === 'about'"></jl-about>
+  <jl-skills *ngIf="tab === 'skills'"></jl-skills>
+  <jl-cv *ngIf="tab === 'cv'"></jl-cv>
+  <jl-projects *ngIf="tab === 'projects'"></jl-projects>
+  <jl-contact *ngIf="tab === 'contact'"></jl-contact>
+</ion-content>
+
+<ion-footer>
+  <ion-segment
+    mode="md"
+    [value]="tab"
+    (ionChange)="segmentChanged($event)"
+  >
+    <ion-segment-button value="about"> About </ion-segment-button>
+    <ion-segment-button value="skills"> Skills </ion-segment-button>
+    <ion-segment-button value="cv"> CV </ion-segment-button>
+    <ion-segment-button value="projects"> Projects </ion-segment-button>
+    <ion-segment-button value="contact"> Contact </ion-segment-button>
+  </ion-segment>
+</ion-footer>
