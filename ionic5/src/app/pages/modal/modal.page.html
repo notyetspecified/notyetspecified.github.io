@@ -1,7 +1,8 @@
-<ion-header class="ion-padding">
+<ion-header>
   <ion-toolbar color="darker">
-    <p title>João Ladeiras</p>
-    <p subtitle>Software Engineer</p>
+    <p>{{data.title}}</p>
+    <p>{{data.subtitle}}</p>
+    <ion-title>{{title}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -14,11 +15,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-segment
-    mode="md"
-    [value]="tab"
-    (ionChange)="segmentChanged($event)"
-  >
+  <ion-segment mode="md" [value]="tab" (ionChange)="segmentChanged($event)">
     <ion-segment-button value="about"> About </ion-segment-button>
     <ion-segment-button value="skills"> Skills </ion-segment-button>
     <ion-segment-button value="cv"> CV </ion-segment-button>

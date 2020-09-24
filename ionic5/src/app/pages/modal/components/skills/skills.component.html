@@ -1,0 +1,11 @@
+<ion-grid>
+  <ng-template ngFor let-item [ngForOf]="data">
+    <h6>{{ item.title }}</h6>
+    <ion-row>
+      <ion-col *ngFor="let skill of item.skills" size="2">
+        <p>{{ skill }}</p>
+      </ion-col>
+    </ion-row>
+    <hr />
+  </ng-template>
+</ion-grid>

@@ -1,0 +1,25 @@
+div {
+  @media only screen and (max-width: 500px) {
+    display: block;
+    div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  display: flex;
+}
+
+img {
+  max-width: 9em;
+  max-height: 9em;
+  width: auto;
+  height: auto;
+  margin-bottom: 1em;
+}
+
+::ng-deep ion-col p {
+  margin: 0;
+  font-size: 0.93rem;
+  color: var(--ion-color-secondary);
+}

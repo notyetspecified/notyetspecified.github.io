@@ -4,7 +4,8 @@
   "author": "Joao Ladeiras",
   "homepage": "http://ladeiras.net/",
   "scripts": {
-    "start": "ng serve --host 0.0.0.0 --base-href / --port 4200"
+    "start": "ng serve --host 0.0.0.0 --base-href / --port 4200",
+    "build": "ionic build --prod -- --base-href /www/"
   },
   "private": true,
   "dependencies": {

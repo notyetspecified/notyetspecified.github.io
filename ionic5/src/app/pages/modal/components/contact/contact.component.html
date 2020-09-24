@@ -1,0 +1,18 @@
+<ion-grid>
+  <ng-template ngFor let-item [ngForOf]="data">
+    <h6>{{ item.type }}</h6>
+    <ion-row>
+      <ion-col *ngFor="let contact of item.contacts">
+        <ion-button
+          (click)="openURL(contact.url)"
+          color="secondary"
+          fill="clear"
+        >
+          <ion-icon slot="start" [name]="contact.icon"></ion-icon>
+          {{ contact.title }}
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <hr />
+  </ng-template>
+</ion-grid>

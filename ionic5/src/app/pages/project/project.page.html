@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar color="darker">
+    <ion-title>{{data.title}}</ion-title>
+    <ion-buttons slot="primary">
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="dark" class="ion-padding">
+  <ion-grid class="ion-no-padding">
+    <ion-row *ngIf="data.horizontal">
+      <ion-col>
+        <div>
+          <img logo-horizontal src="../../assets/img/logo/{{data.logoSource}}">
+        </div>
+        <p><strong>{{data.title}}</strong> (<i>{{data.date}}</i>): {{data.description}}</p>
+        <div>
+          <video controls #videoPlayer>
+            <source src="../../assets/video/{{data.videoSource}}" type="video/mp4" />
+            Browser not supported
+          </video>
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="!data.horizontal">
+      <ion-col>
+        <div>
+          <img logo src="../../assets/img/logo/{{data.logoSource}}">
+        </div>
+        <p><strong>{{data.title}}</strong> (<i>{{data.date}}</i>): {{data.description}}</p>
+      </ion-col>
+      <ion-col>
+        <div>
+          <video controls #videoPlayer>
+            <source src="../../assets/video/{{data.videoSource}}" type="video/mp4" />
+            Browser not supported
+          </video>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

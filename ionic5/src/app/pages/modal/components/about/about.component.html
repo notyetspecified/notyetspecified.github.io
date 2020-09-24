@@ -1,0 +1,17 @@
+<div>
+  <div>
+    <img src="assets/img/avatar.png" />
+  </div>
+  <ion-grid>
+    <ion-row *ngFor="let row of data.rows">
+      <ion-col size="4" class="ion-text-end">
+        <p>
+          <strong>{{ row.title }}</strong>
+        </p>
+      </ion-col>
+      <ion-col>
+        <p [innerHTML]="row.content"></p>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</div>
