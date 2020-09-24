@@ -14,12 +14,12 @@
     <ion-row *ngIf="data.horizontal">
       <ion-col>
         <div>
-          <img logo-horizontal src="../../assets/img/logo/{{data.logoSource}}">
+          <img logo-horizontal src="assets/img/logo/{{data.logoSource}}">
         </div>
         <p><strong>{{data.title}}</strong> (<i>{{data.date}}</i>): {{data.description}}</p>
         <div>
           <video controls #videoPlayer>
-            <source src="../../assets/video/{{data.videoSource}}" type="video/mp4" />
+            <source src="assets/video/{{data.videoSource}}" type="video/mp4" />
             Browser not supported
           </video>
         </div>
@@ -28,14 +28,14 @@
     <ion-row *ngIf="!data.horizontal">
       <ion-col>
         <div>
-          <img logo src="../../assets/img/logo/{{data.logoSource}}">
+          <img logo src="assets/img/logo/{{data.logoSource}}">
         </div>
         <p><strong>{{data.title}}</strong> (<i>{{data.date}}</i>): {{data.description}}</p>
       </ion-col>
       <ion-col>
         <div>
           <video controls #videoPlayer>
-            <source src="../../assets/video/{{data.videoSource}}" type="video/mp4" />
+            <source src="assets/video/{{data.videoSource}}" type="video/mp4" />
             Browser not supported
           </video>
         </div>
