@@ -15,7 +15,7 @@ export class ModalPage {
   }
 
   get title() {
-    return this.tab !== 'about' ? this.tab : '';
+    return this.tab !== 'about' ? '/' + this.tab : '';
   }
 
   segmentChanged(event: CustomEvent) {
