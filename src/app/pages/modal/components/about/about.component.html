@@ -1,6 +1,6 @@
 <div>
-  <div>
-    <img src="assets/img/avatar.png" />
+  <div (click)="clicked()">
+    <img [src]="srcImg" alt="That's me"/>
   </div>
   <ion-grid>
     <ion-row *ngFor="let row of data.rows">

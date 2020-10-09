@@ -1,5 +1,12 @@
-ion-col p {
-  margin: 0;
-  text-align: center;
-  color: var(--ion-color-secondary);
+ion-col {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  p {
+    min-width: 80px;
+    margin: 0;
+    text-align: center;
+    color: var(--ion-color-secondary);
+  }
 }
