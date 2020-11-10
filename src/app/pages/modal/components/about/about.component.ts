@@ -20,6 +20,10 @@ export class AboutComponent {
   }
 
   get srcImg() {
+    if (this.count === this.tc) {
+      window.location.href = 'https://govegan.tv';
+    }
+    
     return this.count === this.tc
       ? 'assets/img/gvtv.png'
       : 'assets/img/avatar.png';
