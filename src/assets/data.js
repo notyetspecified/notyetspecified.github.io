@@ -152,9 +152,9 @@ exports.data = {
       type: 'Others',
       contacts: [
         {
-          url: 'https://github.com/Ladeiras',
+          url: 'https://github.com/notyetspecified',
           icon: 'logo-github',
-          title: 'ladeiras.github.io',
+          title: 'notyetspecified.github.io',
         },
       ],
     },
