@@ -3,13 +3,11 @@
     <h6>{{ item.type }}</h6>
     <ion-row>
       <ion-col *ngFor="let contact of item.contacts">
-        <ion-button
-          (click)="openURL(contact.url)"
-          color="secondary"
-          fill="clear"
-        >
-          <ion-icon slot="start" [name]="contact.icon"></ion-icon>
-          {{ contact.title }}
+        <ion-button (click)="openURL(contact.url)" fill="clear">
+          <mat-icon slot="start" [svgIcon]="contact.icon"></mat-icon>
+          <ion-text class="ion-padding-start" color="secondary">{{
+            contact.title
+          }}</ion-text>
         </ion-button>
       </ion-col>
     </ion-row>

@@ -14,6 +14,6 @@ export class AboutComponent {
   }
 
   get srcImg() {
-    return 'assets/img/avatar.png';
+    return 'assets/img/avatar.jpg';
   }
 }

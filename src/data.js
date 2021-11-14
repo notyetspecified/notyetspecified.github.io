@@ -29,7 +29,7 @@ exports.data = {
       {
         title: 'Interests',
         content:
-          'Mobile Application Development, Web Development, Bioinformatics, Machine Learning',
+          'Mobile Application Development, Web Development, Automation, Bioinformatics, Machine Learning',
       },
     ],
   },
@@ -37,33 +37,37 @@ exports.data = {
     {
       title: 'Main',
       skills: [
-        'sh',
-        'Javasript',
-        'Typescript',
-        'HTML5',
-        'CSS3',
-        'SQL',
-        'Java',
-        'C++',
+        { icon: 'bash', name: 'shell' },
+        { icon: 'language-javascript', name: 'Javasript' },
+        { icon: 'language-typescript', name: 'Typescript' },
+        { icon: 'language-html5', name: 'HTML' },
+        { icon: 'language-css3', name: 'CSS' },
+        { icon: 'database-search', name: 'SQL' },
+        { icon: 'language-java', name: 'Java' },
+        { icon: 'language-cpp', name: 'C++' },
       ],
     },
     {
       title: 'Some Experience',
-      skills: ['PHP', 'C#', 'Python', 'Prolog', 'R', 'noSQL'],
+      skills: [
+        { icon: 'language-php', name: 'PHP' },
+        { icon: 'language-csharp', name: 'C#' },
+        { icon: 'language-python', name: 'Python' },
+        { icon: 'file-code', name: 'Prolog' },
+        { icon: 'language-r', name: 'R' },
+        { icon: 'database-search', name: 'noSQL' },
+        { icon: 'language-swift', name: 'swift' },
+      ],
     },
     {
       title: 'Platfroms/Frameworks/Others',
       skills: [
-        'Linux',
-        'Docker',
-        'K8s',
-        'Node',
-        'Express',
-        'Cordova',
-        'Ionic Framewok',
-        'Angular',
-        'Android (Java)',
-        'iOS (Swift)',
+        { icon: 'debian', name: 'Linux' },
+        { icon: 'docker', name: 'Docker' },
+        { icon: 'nodejs', name: 'Node' },
+        { icon: 'cordova', name: 'Cordova' },
+        { icon: 'angular', name: 'Angular' },
+        { icon: 'android', name: 'Android' },
       ],
     },
   ],
@@ -108,22 +112,22 @@ exports.data = {
       contacts: [
         {
           url: 'http://ladeiras.net',
-          icon: 'globe',
+          icon: 'web',
           title: 'ladeiras.net',
         },
         {
           url: 'tel:00351938074216',
-          icon: 'call',
+          icon: 'phone',
           title: '+351 938074216',
         },
         {
           url: 'mailto:jtladeiras@gmail.com',
-          icon: 'mail',
+          icon: 'email',
           title: 'jtladeiras@gmail.com',
         },
         {
           url: 'skype:jtladeiras@gmail.com',
-          icon: 'logo-skype',
+          icon: 'skype',
           title: 'jtladeiras@gmail.com',
         },
       ],
@@ -132,18 +136,8 @@ exports.data = {
       type: 'Social Links',
       contacts: [
         {
-          url: 'https://www.facebook.com/joao.ladeiras.3',
-          icon: 'logo-facebook',
-          title: 'joao.ladeiras.3',
-        },
-        {
-          url: 'https://twitter.com/JTLadeiras',
-          icon: 'logo-twitter',
-          title: 'JTLadeiras',
-        },
-        {
           url: 'https://www.linkedin.com/in/jtladeiras',
-          icon: 'logo-linkedin',
+          icon: 'linkedin',
           title: 'jtladeiras',
         },
       ],
@@ -153,7 +147,7 @@ exports.data = {
       contacts: [
         {
           url: 'https://github.com/notyetspecified',
-          icon: 'logo-github',
+          icon: 'github',
           title: 'notyetspecified.github.io',
         },
       ],
