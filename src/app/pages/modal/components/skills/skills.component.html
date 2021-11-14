@@ -2,9 +2,12 @@
   <ng-template ngFor let-item [ngForOf]="data">
     <h6>{{ item.title }}</h6>
     <ion-row>
-      <ion-col *ngFor="let skill of item.skills">
+      <ion-col
+        [ngClass]="skill.not ? 'not' : ''"
+        *ngFor="let skill of item.skills"
+      >
         <mat-icon [svgIcon]="skill.icon"></mat-icon>
-        <p>{{ skill.name }}</p>
+        <p><ion-text>{{ skill.name }}</ion-text></p>
       </ion-col>
     </ion-row>
     <hr />

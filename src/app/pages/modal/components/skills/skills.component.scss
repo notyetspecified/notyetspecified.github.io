@@ -7,6 +7,12 @@ ion-col {
     min-width: 80px;
     margin: 0;
     text-align: center;
-    color: var(--ion-color-secondary);
+  }
+  &.not {
+    p, mat-icon {
+      text-decoration: line-through;
+      color: var(--ion-color-medium);
+      opacity: 0.3;
+    }
   }
 }

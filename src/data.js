@@ -56,7 +56,7 @@ exports.data = {
         { icon: 'file-code', name: 'Prolog' },
         { icon: 'language-r', name: 'R' },
         { icon: 'database-search', name: 'noSQL' },
-        { icon: 'language-swift', name: 'swift' },
+        { icon: 'language-swift', name: 'Swift' },
       ],
     },
     {
@@ -64,6 +64,8 @@ exports.data = {
       skills: [
         { icon: 'debian', name: 'Linux' },
         { icon: 'docker', name: 'Docker' },
+        { icon: 'microsoft-windows', name: 'Windows', not: true },
+        { icon: 'apple', name: 'MacOS', not: true },
         { icon: 'nodejs', name: 'Node' },
         { icon: 'cordova', name: 'Cordova' },
         { icon: 'angular', name: 'Angular' },
