@@ -4,6 +4,7 @@ exports.data = {
     subtitle: 'Software Engineer',
   },
   about: {
+    avatar: 'https://avatars.githubusercontent.com/u/5716992',
     rows: [
       {
         title: 'Name',

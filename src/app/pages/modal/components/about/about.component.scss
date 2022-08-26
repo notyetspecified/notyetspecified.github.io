@@ -16,7 +16,8 @@ img {
   width: auto;
   height: auto;
   margin-bottom: 1em;
-  border-radius: 16%;
+  border-radius: 1.5em;
+  filter: contrast(1.5);
 }
 
 ::ng-deep ion-col p {

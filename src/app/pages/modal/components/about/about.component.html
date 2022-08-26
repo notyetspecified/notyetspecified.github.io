@@ -1,6 +1,10 @@
 <div>
   <div>
-    <img [src]="srcImg" alt="That's me" />
+    <img
+      [src]="data.avatar"
+      title="That's me"
+      alt="That would be me"
+    />
   </div>
   <ion-grid>
     <ion-row *ngFor="let row of data.rows">

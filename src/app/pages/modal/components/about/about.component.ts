@@ -12,8 +12,4 @@ export class AboutComponent {
   constructor(private dataProvider: DataProvider) {
     this.data = this.dataProvider.data.about;
   }
-
-  get srcImg() {
-    return 'assets/img/avatar.jpg';
-  }
 }
