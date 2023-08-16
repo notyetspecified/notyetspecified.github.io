@@ -65,8 +65,7 @@ exports.data = {
       skills: [
         { icon: 'debian', name: 'Linux' },
         { icon: 'docker', name: 'Docker/Docker Swarm' },
-        { icon: 'microsoft-windows', name: 'Windows', not: true },
-        { icon: 'apple', name: 'MacOS' },
+        { icon: 'alpha-o-box-outline', name: 'OpenStack' },
         { icon: 'nodejs', name: 'Node' },
         { icon: 'cordova', name: 'Cordova' },
         { icon: 'angular', name: 'Angular' },
