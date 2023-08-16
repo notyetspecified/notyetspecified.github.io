@@ -20,7 +20,7 @@ exports.data = {
       },
       {
         title: 'Where I live',
-        content: 'Porto, Portugal',
+        content: 'London, UK',
       },
       {
         title: 'Academic Training',
@@ -30,7 +30,7 @@ exports.data = {
       {
         title: 'Interests',
         content:
-          'Mobile Application Development, Web Development, Automation, Bioinformatics, Machine Learning',
+          'Mobile/Web Development, Automation, Bioinformatics, Machine Learning, Blockchain',
       },
     ],
   },
@@ -45,7 +45,7 @@ exports.data = {
         { icon: 'language-css3', name: 'CSS' },
         { icon: 'database-search', name: 'SQL' },
         { icon: 'language-java', name: 'Java' },
-        { icon: 'language-cpp', name: 'C++' },
+        { icon: 'language-cpp', name: 'C/C++' },
       ],
     },
     {
@@ -64,9 +64,9 @@ exports.data = {
       title: 'Platfroms/Frameworks/Others',
       skills: [
         { icon: 'debian', name: 'Linux' },
-        { icon: 'docker', name: 'Docker' },
+        { icon: 'docker', name: 'Docker/Docker Swarm' },
         { icon: 'microsoft-windows', name: 'Windows', not: true },
-        { icon: 'apple', name: 'MacOS', not: true },
+        { icon: 'apple', name: 'MacOS' },
         { icon: 'nodejs', name: 'Node' },
         { icon: 'cordova', name: 'Cordova' },
         { icon: 'angular', name: 'Angular' },
