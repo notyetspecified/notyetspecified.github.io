@@ -1,10 +1,11 @@
 #!/bin/bash
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-port=8000
+. "$NVM_DIR/nvm.sh"
+port=8009
 test -z $1 || port=$1
-rm -rf node_modules package-lock.json
-nvm use 12
-npm install
+
+nvm use 21
+if [ ! -d "node_modules" ]; then
+  npm install
+fi
 npm start -- --port=$port

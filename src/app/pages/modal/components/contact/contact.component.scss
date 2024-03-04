@@ -1,4 +1,9 @@
 ion-button {
   font-size: 0.95rem;
   --color-hover: var(--ion-color-secondary);
+  max-height: 1.5rem;
+  --padding-start: 0.5rem;
+  --padding-end: 0.5rem;
+  --padding-top: 0;
+  --padding-bottom: 0;
 }

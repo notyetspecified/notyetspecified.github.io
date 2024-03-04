@@ -2,8 +2,8 @@
   <ng-template ngFor let-item [ngForOf]="data">
     <h6>{{ item.type }}</h6>
     <ion-row>
-      <ion-col *ngFor="let contact of item.contacts">
-        <ion-button (click)="openURL(contact.url)" fill="clear">
+      <ion-col *ngFor="let contact of item.contacts" class="ion-no-padding">
+        <ion-button (click)="openURL(contact.url)" fill="clear" class="ion-no-margin">
           <mat-icon slot="start" [svgIcon]="contact.icon"></mat-icon>
           <ion-text class="ion-padding-start" color="secondary">{{
             contact.title

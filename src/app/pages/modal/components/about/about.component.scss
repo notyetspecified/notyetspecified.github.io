@@ -11,13 +11,13 @@ div {
 }
 
 img {
-  max-width: 9em;
-  max-height: 9em;
+  max-width: 8rem;
+  max-height: 8rem;
   width: auto;
   height: auto;
   margin-bottom: 1em;
   border-radius: 1.5em;
-  filter: contrast(1.5);
+  /*filter: contrast(1.5);*/
 }
 
 ::ng-deep ion-col p {
