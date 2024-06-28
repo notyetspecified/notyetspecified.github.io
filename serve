@@ -4,7 +4,7 @@ export NVM_DIR="$HOME/.nvm"
 port=8009
 test -z $1 || port=$1
 
-nvm use 21
+nvm install 21
 if [ ! -d "node_modules" ]; then
   npm install
 fi
