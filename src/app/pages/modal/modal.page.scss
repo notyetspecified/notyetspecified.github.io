@@ -1,5 +1,4 @@
 ion-header {
-  background-color: var(--ion-color-darker);
   ion-toolbar {
     padding: 1rem;
     p {
@@ -29,11 +28,6 @@ ion-content {
    --padding-end: var(--padding);
    --padding-top: var(--padding);
    --padding-bottom: var(--padding);
-}
-
-ion-footer,
-ion-segment {
-  --background: var(--ion-color-darker);
 }
 
 ion-segment-button {
