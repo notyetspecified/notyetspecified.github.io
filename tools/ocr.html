@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR - Extract Text from Images & PDFs</title>
+    <script type="module">
+        import pdfjsDist from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.2.67/+esm';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.2.67/build/pdf.worker.min.mjs";
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 1.5rem;
+            line-height: 1.5;
+        }
+        h1 {
+            margin: 0 0 0.5rem;
+            font-size: 1.5rem;
+        }
+        p {
+            color: #aaa;
+            margin: 0 0 1rem;
+            font-size: 0.9rem;
+        }
+        a {
+            color: #6af;
+        }
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        label {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        select {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        select:focus {
+            outline: none;
+            border-color: #6af;
+        }
+        .dropzone {
+            width: 100%;
+            min-height: 150px;
+            border: 2px dashed #444;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 1rem;
+            color: #888;
+            cursor: pointer;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+        .dropzone:hover {
+            border-color: #666;
+            color: #aaa;
+        }
+        .dropzone.drag-over {
+            border-color: #6af;
+            background: #2a2a2a;
+            color: #fff;
+        }
+        .dropzone.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .dropzone.processing {
+            border-color: #fa6;
+            color: #fa6;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .full-document-section {
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+        .full-document-section h2 {
+            font-size: 1rem;
+            margin: 0 0 0.5rem;
+            color: #aaa;
+        }
+        .results h2 {
+            font-size: 1rem;
+            margin: 0 0 0.5rem;
+            color: #aaa;
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #6af;
+        }
+        textarea::placeholder {
+            color: #666;
+        }
+        .page-result {
+            margin-bottom: 1.5rem;
+        }
+        .page-result img {
+            max-width: 100%;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            border: 1px solid #333;
+        }
+        .page-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.5rem;
+        }
+        .copy-btn {
+            background: #333;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: #444;
+            border-color: #555;
+        }
+        .copy-btn:active {
+            background: #555;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 1.25rem;
+            }
+            .dropzone {
+                min-height: 120px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>OCR - Extract Text from Images & PDFs</h1>
+
+    <div class="controls">
+        <label>Language: <select id="languageSelect"></select></label>
+    </div>
+
+    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff">
+    <div class="dropzone" id="dropzone">
+        Drop an image or PDF here, click to select, or paste from clipboard
+    </div>
+
+    <div class="full-document-section" id="fullDocumentSection">
+        <h2>Full Document</h2>
+        <button class="copy-btn" onclick="copyText('fullDocument')">Copy All</button>
+        <textarea id="fullDocument" readonly></textarea>
+    </div>
+
+    <div class="results" id="results"></div>
+
+    <script>
+        const DESIRED_WIDTH = 1000;
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const results = document.getElementById('results');
+        const fullDocumentSection = document.getElementById('fullDocumentSection');
+        const fullDocumentTextarea = document.getElementById('fullDocument');
+        const languageSelect = document.getElementById('languageSelect');
+        const DROPZONE_DEFAULT_TEXT = dropzone.innerText;
+
+        let fileSelectionAllowed = true;
+        let currentImages = [];
+        let currentTextareas = [];
+
+        const LANGUAGES = {
+            "afr": "Afrikaans", "amh": "Amharic", "ara": "Arabic", "asm": "Assamese",
+            "aze": "Azerbaijani", "bel": "Belarusian", "ben": "Bengali", "bod": "Tibetan",
+            "bos": "Bosnian", "bul": "Bulgarian", "cat": "Catalan", "ceb": "Cebuano",
+            "ces": "Czech", "chi_sim": "Chinese (Simplified)", "chi_tra": "Chinese (Traditional)",
+            "chr": "Cherokee", "cym": "Welsh", "dan": "Danish", "deu": "German",
+            "dzo": "Dzongkha", "ell": "Greek", "eng": "English", "epo": "Esperanto",
+            "est": "Estonian", "eus": "Basque", "fas": "Persian", "fin": "Finnish",
+            "fra": "French", "gle": "Irish", "glg": "Galician", "guj": "Gujarati",
+            "hat": "Haitian Creole", "heb": "Hebrew", "hin": "Hindi", "hrv": "Croatian",
+            "hun": "Hungarian", "ind": "Indonesian", "isl": "Icelandic", "ita": "Italian",
+            "jav": "Javanese", "jpn": "Japanese", "kan": "Kannada", "kat": "Georgian",
+            "kaz": "Kazakh", "khm": "Khmer", "kir": "Kyrgyz", "kor": "Korean",
+            "kur": "Kurdish", "lao": "Lao", "lat": "Latin", "lav": "Latvian",
+            "lit": "Lithuanian", "mal": "Malayalam", "mar": "Marathi", "mkd": "Macedonian",
+            "mlt": "Maltese", "msa": "Malay", "mya": "Burmese", "nep": "Nepali",
+            "nld": "Dutch", "nor": "Norwegian", "ori": "Oriya", "pan": "Punjabi",
+            "pol": "Polish", "por": "Portuguese", "pus": "Pashto", "ron": "Romanian",
+            "rus": "Russian", "san": "Sanskrit", "sin": "Sinhala", "slk": "Slovak",
+            "slv": "Slovenian", "spa": "Spanish", "sqi": "Albanian", "srp": "Serbian",
+            "swa": "Swahili", "swe": "Swedish", "syr": "Syriac", "tam": "Tamil",
+            "tel": "Telugu", "tgk": "Tajik", "tgl": "Tagalog", "tha": "Thai",
+            "tir": "Tigrinya", "tur": "Turkish", "uig": "Uyghur", "ukr": "Ukrainian",
+            "urd": "Urdu", "uzb": "Uzbek", "vie": "Vietnamese", "yid": "Yiddish"
+        };
+
+        // Populate language select
+        function initLanguageSelect() {
+            const codes = Object.keys(LANGUAGES).sort((a, b) =>
+                LANGUAGES[a].localeCompare(LANGUAGES[b])
+            );
+
+            // Put English first
+            const engIndex = codes.indexOf('eng');
+            if (engIndex > -1) {
+                codes.splice(engIndex, 1);
+                codes.unshift('eng');
+            }
+
+            codes.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = LANGUAGES[code];
+                if (code === 'eng') option.selected = true;
+                languageSelect.appendChild(option);
+            });
+
+            // Check URL for language param
+            const params = new URLSearchParams(window.location.search);
+            const lang = params.get('lang');
+            if (lang && LANGUAGES[lang]) {
+                languageSelect.value = lang;
+            }
+        }
+
+        initLanguageSelect();
+
+        // Event listeners
+        dropzone.addEventListener('dragover', e => {
+            e.preventDefault();
+            if (fileSelectionAllowed) dropzone.classList.add('drag-over');
+        });
+
+        dropzone.addEventListener('dragleave', e => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-over');
+        });
+
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-over');
+            if (fileSelectionAllowed && e.dataTransfer.files[0]) {
+                processFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        dropzone.addEventListener('click', () => {
+            if (fileSelectionAllowed) fileInput.click();
+        });
+
+        fileInput.addEventListener('change', e => {
+            if (e.target.files[0]) processFile(e.target.files[0]);
+        });
+
+        document.addEventListener('paste', e => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    processFile(item.getAsFile());
+                    break;
+                }
+            }
+        });
+
+        languageSelect.addEventListener('change', () => {
+            // Update URL
+            const lang = languageSelect.value;
+            const newUrl = lang === 'eng'
+                ? window.location.pathname
+                : `${window.location.pathname}?lang=${lang}`;
+            window.history.pushState({}, '', newUrl);
+
+            // Re-run OCR if we have images
+            if (currentImages.length > 0) {
+                rerunOCR();
+            }
+        });
+
+        async function processFile(file) {
+            const worker = await Tesseract.createWorker(languageSelect.value);
+
+            results.innerHTML = '';
+            fullDocumentSection.style.display = 'none';
+            fullDocumentTextarea.value = '';
+            currentImages = [];
+            currentTextareas = [];
+
+            setDropzoneState('processing', 'Processing...');
+
+            try {
+                if (file.type === 'application/pdf') {
+                    await processPDF(file, worker);
+                } else {
+                    await processImage(file, worker);
+                }
+            } catch (error) {
+                console.error('Error processing file:', error);
+                setDropzoneState('default', 'Error processing file. Please try again.');
+            }
+
+            await worker.terminate();
+            setDropzoneState('default', DROPZONE_DEFAULT_TEXT);
+        }
+
+        async function processPDF(file, worker) {
+            const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+            const numPages = pdf.numPages;
+
+            setDropzoneState('processing', `Processing ${numPages} page${numPages > 1 ? 's' : ''}...`);
+
+            for (let i = 1; i <= numPages; i++) {
+                setDropzoneState('processing', `Processing page ${i} of ${numPages}...`);
+
+                try {
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: 1 });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+
+                    canvas.width = DESIRED_WIDTH;
+                    canvas.height = (DESIRED_WIDTH / viewport.width) * viewport.height;
+
+                    await page.render({
+                        canvasContext: context,
+                        viewport: page.getViewport({ scale: DESIRED_WIDTH / viewport.width })
+                    }).promise;
+
+                    const imageURL = canvas.toDataURL('image/jpeg', 0.8);
+                    const { textarea } = createPageResult(imageURL, i, numPages);
+
+                    currentImages.push(imageURL);
+                    currentTextareas.push(textarea);
+
+                    const { data: { text } } = await worker.recognize(imageURL);
+                    setTextareaContent(textarea, text);
+                    updateFullDocument();
+                } catch (error) {
+                    console.error(`Error processing page ${i}:`, error);
+                }
+            }
+        }
+
+        async function processImage(file, worker) {
+            const imageURL = URL.createObjectURL(file);
+            const { textarea } = createPageResult(imageURL, 1, 1);
+
+            currentImages.push(imageURL);
+            currentTextareas.push(textarea);
+
+            const { data: { text } } = await worker.recognize(imageURL);
+            setTextareaContent(textarea, text);
+            updateFullDocument();
+        }
+
+        function createPageResult(imageURL, pageNum, totalPages) {
+            const container = document.createElement('div');
+            container.className = 'page-result';
+
+            if (totalPages > 1) {
+                const label = document.createElement('div');
+                label.className = 'page-label';
+                label.textContent = `Page ${pageNum}`;
+                container.appendChild(label);
+            }
+
+            const img = document.createElement('img');
+            img.src = imageURL;
+            container.appendChild(img);
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = 'Copy';
+            const textareaId = `textarea-${pageNum}`;
+            copyBtn.onclick = () => copyText(textareaId);
+            container.appendChild(copyBtn);
+
+            const textarea = document.createElement('textarea');
+            textarea.id = textareaId;
+            textarea.placeholder = 'Extracting text...';
+            textarea.readOnly = true;
+            container.appendChild(textarea);
+
+            results.appendChild(container);
+            return { textarea };
+        }
+
+        function setTextareaContent(textarea, text) {
+            textarea.value = text.trim();
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.max(150, textarea.scrollHeight + 5) + 'px';
+        }
+
+        function updateFullDocument() {
+            const texts = currentTextareas
+                .map(ta => ta.value.trim())
+                .filter(t => t.length > 0);
+
+            if (texts.length > 1) {
+                fullDocumentTextarea.value = texts.join('\n\n---\n\n');
+                fullDocumentSection.style.display = 'block';
+                fullDocumentTextarea.style.height = 'auto';
+                fullDocumentTextarea.style.height = Math.max(150, fullDocumentTextarea.scrollHeight + 5) + 'px';
+            } else {
+                fullDocumentSection.style.display = 'none';
+            }
+        }
+
+        async function rerunOCR() {
+            if (currentImages.length === 0) return;
+
+            const worker = await Tesseract.createWorker(languageSelect.value);
+
+            setDropzoneState('processing', `Re-processing with ${LANGUAGES[languageSelect.value]}...`);
+
+            for (let i = 0; i < currentImages.length; i++) {
+                setDropzoneState('processing', `Re-processing ${i + 1} of ${currentImages.length}...`);
+                currentTextareas[i].value = '';
+                currentTextareas[i].placeholder = 'Extracting text...';
+
+                const { data: { text } } = await worker.recognize(currentImages[i]);
+                setTextareaContent(currentTextareas[i], text);
+                updateFullDocument();
+            }
+
+            await worker.terminate();
+            setDropzoneState('default', DROPZONE_DEFAULT_TEXT);
+        }
+
+        function setDropzoneState(state, text) {
+            dropzone.innerText = text;
+            dropzone.classList.remove('processing', 'disabled');
+
+            if (state === 'processing') {
+                dropzone.classList.add('processing', 'disabled');
+                fileSelectionAllowed = false;
+            } else {
+                fileSelectionAllowed = true;
+            }
+        }
+
+        function copyText(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            if (textarea && textarea.value) {
+                navigator.clipboard.writeText(textarea.value).then(() => {
+                    const btn = textarea.previousElementSibling;
+                    if (btn && btn.classList.contains('copy-btn')) {
+                        const originalText = btn.textContent;
+                        btn.textContent = 'Copied!';
+                        setTimeout(() => btn.textContent = originalText, 1500);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
