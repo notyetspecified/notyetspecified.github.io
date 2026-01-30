@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Generator & Reader</title>
+    <script src="https://cdn.jsdelivr.net/npm/bwip-js@4/dist/bwip-js-min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .container {
+            background: #232323;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 480px;
+        }
+        h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+        .tabs {
+            display: flex;
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 1.75rem;
+        }
+        .tab {
+            flex: 1;
+            padding: 0.6rem 0.75rem;
+            border: none;
+            background: none;
+            color: #888;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .tab.active {
+            background: #4a8cff;
+            color: #fff;
+        }
+        .tab:not(.active):hover {
+            color: #bbb;
+        }
+        .tab-icon {
+            font-size: 0.8rem;
+        }
+        .section-divider {
+            height: 1px;
+            background: #333;
+            margin: 1rem 0;
+        }
+        .panel {
+            display: none;
+        }
+        .panel.active {
+            display: block;
+        }
+        .option-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .option-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            min-width: 60px;
+        }
+        select {
+            flex: 1;
+            padding: 8px 10px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+        select:focus {
+            border-color: #4a8cff;
+        }
+        optgroup {
+            color: #888;
+            font-style: normal;
+        }
+        optgroup option {
+            color: #fff;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+        input[type="text"]:focus {
+            border-color: #4a8cff;
+        }
+        input[type="text"]::placeholder {
+            color: #666;
+        }
+        .preview-display {
+            background: #fff;
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+        }
+        .preview-display canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .preview-placeholder {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 2px solid #4a8cff;
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: #4a8cff;
+            color: #fff;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #3a7aee;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #4a8cff;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(74, 140, 255, 0.1);
+        }
+        .btn.copied {
+            background: #3a9a5c;
+            border-color: #3a9a5c;
+            color: #fff;
+        }
+
+        /* Read panel */
+        .camera-section {
+            margin-bottom: 1.25rem;
+        }
+        #camera-container {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        #camera-container video {
+            width: 100%;
+            display: block;
+        }
+        .camera-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+        .dropzone {
+            width: 100%;
+            min-height: 120px;
+            border: 2px dashed #444;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888;
+            cursor: pointer;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.2s;
+        }
+        .dropzone:hover {
+            border-color: #666;
+            color: #aaa;
+        }
+        .dropzone.drag-over {
+            border-color: #4a8cff;
+            background: #2a2a2a;
+            color: #fff;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .result-box {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1.25rem;
+            display: none;
+        }
+        .result-format {
+            display: inline-block;
+            background: #4a8cff;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+        .result-text {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 1rem;
+            word-break: break-all;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        .result-copy-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid #4a8cff;
+            background: transparent;
+            color: #4a8cff;
+            transition: all 0.15s;
+        }
+        .result-copy-btn:hover {
+            background: rgba(74, 140, 255, 0.1);
+        }
+        .result-copy-btn.copied {
+            background: #3a9a5c;
+            border-color: #3a9a5c;
+            color: #fff;
+        }
+        .read-error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" data-panel="create">
+                <span class="tab-icon">&#x2712;</span> Create
+            </button>
+            <button class="tab" data-panel="read">
+                <span class="tab-icon">&#x1F4F7;</span> Read
+            </button>
+        </div>
+
+        <!-- Create Panel -->
+        <div id="panel-create" class="panel active">
+            <h2>Barcode type</h2>
+            <div class="section-divider"></div>
+            <div class="option-row">
+                <label class="option-label" for="barcode-type">Type</label>
+                <select id="barcode-type">
+                    <optgroup label="2D Codes">
+                        <option value="qrcode" selected>QR Code</option>
+                        <option value="datamatrix">Data Matrix</option>
+                        <option value="pdf417">PDF417</option>
+                        <option value="azteccode">Aztec Code</option>
+                    </optgroup>
+                    <optgroup label="1D Product">
+                        <option value="ean13">EAN-13</option>
+                        <option value="ean8">EAN-8</option>
+                        <option value="upca">UPC-A</option>
+                        <option value="upce">UPC-E</option>
+                        <option value="isbn">ISBN</option>
+                    </optgroup>
+                    <optgroup label="1D Industrial">
+                        <option value="code128">Code 128</option>
+                        <option value="code39">Code 39</option>
+                        <option value="itf14">ITF-14</option>
+                        <option value="interleaved2of5">Interleaved 2 of 5</option>
+                        <option value="codabar">Codabar</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <h2>Data</h2>
+            <div class="section-divider"></div>
+            <div style="margin-bottom: 1rem;">
+                <input type="text" id="barcode-data" placeholder="Enter data to encode...">
+            </div>
+            <div class="error-msg" id="create-error"></div>
+
+            <h2>Preview</h2>
+            <div class="section-divider"></div>
+            <div class="preview-display" id="preview-display">
+                <span class="preview-placeholder">Enter data above to generate barcode</span>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-primary" id="btn-download" disabled>Download PNG</button>
+                <button class="btn btn-outline" id="btn-copy-image" disabled>Copy image</button>
+            </div>
+        </div>
+
+        <!-- Read Panel -->
+        <div id="panel-read" class="panel">
+            <h2>Camera</h2>
+            <div class="section-divider"></div>
+            <div class="camera-section">
+                <div id="camera-container"></div>
+                <div class="camera-buttons">
+                    <button class="btn btn-primary" id="btn-camera-start">Start camera</button>
+                    <button class="btn btn-outline" id="btn-camera-stop" style="display:none;">Stop</button>
+                </div>
+            </div>
+
+            <h2>Upload image</h2>
+            <div class="section-divider"></div>
+            <input type="file" id="file-input" accept="image/*">
+            <div class="dropzone" id="dropzone">
+                Drop an image here, click to select, or paste from clipboard
+            </div>
+            <div class="read-error" id="read-error"></div>
+
+            <h2>Result</h2>
+            <div class="section-divider"></div>
+            <div class="result-box" id="result-box">
+                <div class="result-format" id="result-format"></div>
+                <div class="result-text" id="result-text"></div>
+                <button class="result-copy-btn" id="btn-copy-result">Copy result</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State ---
+        let currentCanvas = null;
+        let html5QrCode = null;
+        let cameraRunning = false;
+        let debounceTimer = null;
+
+        // --- Format metadata for placeholders and validation hints ---
+        const FORMAT_INFO = {
+            qrcode:           { placeholder: 'Any text, URL, etc.', freeform: true },
+            datamatrix:       { placeholder: 'Any text or data', freeform: true },
+            pdf417:           { placeholder: 'Any text or data', freeform: true },
+            azteccode:        { placeholder: 'Any text or data', freeform: true },
+            ean13:            { placeholder: '12 or 13 digits (e.g. 590123412345)', freeform: false },
+            ean8:             { placeholder: '7 or 8 digits (e.g. 9638507)', freeform: false },
+            upca:             { placeholder: '11 or 12 digits (e.g. 01234567890)', freeform: false },
+            upce:             { placeholder: '7 or 8 digits (e.g. 0123456)', freeform: false },
+            isbn:             { placeholder: '10 or 13 digit ISBN (e.g. 9781234567897)', freeform: false },
+            code128:          { placeholder: 'Any ASCII text', freeform: true },
+            code39:           { placeholder: 'A-Z, 0-9, - . $ / + % SPACE', freeform: true },
+            itf14:            { placeholder: '13 or 14 digits', freeform: false },
+            interleaved2of5:  { placeholder: 'Even number of digits', freeform: false },
+            codabar:          { placeholder: 'Digits 0-9, - $ : / . +', freeform: true },
+        };
+
+        // --- Elements ---
+        const barcodeTypeSelect = document.getElementById('barcode-type');
+        const barcodeDataInput = document.getElementById('barcode-data');
+        const previewDisplay = document.getElementById('preview-display');
+        const createError = document.getElementById('create-error');
+        const btnDownload = document.getElementById('btn-download');
+        const btnCopyImage = document.getElementById('btn-copy-image');
+        const btnCameraStart = document.getElementById('btn-camera-start');
+        const btnCameraStop = document.getElementById('btn-camera-stop');
+        const cameraContainer = document.getElementById('camera-container');
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+        const readError = document.getElementById('read-error');
+        const resultBox = document.getElementById('result-box');
+        const resultFormat = document.getElementById('result-format');
+        const resultText = document.getElementById('result-text');
+        const btnCopyResult = document.getElementById('btn-copy-result');
+
+        // --- Tab switching ---
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+
+                // Stop camera when switching away from read tab
+                if (tab.dataset.panel !== 'read' && cameraRunning) {
+                    stopCamera();
+                }
+            });
+        });
+
+        // --- Create: type change ---
+        barcodeTypeSelect.addEventListener('change', () => {
+            const info = FORMAT_INFO[barcodeTypeSelect.value];
+            barcodeDataInput.placeholder = info.placeholder;
+            generateBarcode();
+        });
+
+        // --- Create: data input with debounce ---
+        barcodeDataInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(generateBarcode, 150);
+        });
+
+        function generateBarcode() {
+            const data = barcodeDataInput.value.trim();
+            const bcType = barcodeTypeSelect.value;
+
+            createError.style.display = 'none';
+            createError.textContent = '';
+
+            if (!data) {
+                previewDisplay.innerHTML = '<span class="preview-placeholder">Enter data above to generate barcode</span>';
+                currentCanvas = null;
+                btnDownload.disabled = true;
+                btnCopyImage.disabled = true;
+                return;
+            }
+
+            try {
+                const canvas = document.createElement('canvas');
+                const is2D = ['qrcode', 'datamatrix', 'pdf417', 'azteccode'].includes(bcType);
+
+                const opts = {
+                    bcid: bcType,
+                    text: data,
+                    scale: 3,
+                    backgroundcolor: 'FFFFFF',
+                    padding: 5,
+                };
+
+                if (is2D) {
+                    opts.width = 40;
+                    opts.height = 40;
+                } else {
+                    opts.height = 15;
+                    opts.includetext = true;
+                    opts.textxalign = 'center';
+                }
+
+                bwipjs.toCanvas(canvas, opts);
+
+                previewDisplay.innerHTML = '';
+                previewDisplay.appendChild(canvas);
+                currentCanvas = canvas;
+                btnDownload.disabled = false;
+                btnCopyImage.disabled = false;
+            } catch (e) {
+                const msg = e.message || String(e);
+                // Clean up bwip-js internal error messages
+                const cleanMsg = msg.replace(/^bwip-js: /, '').replace(/^BWIPP /, '');
+                createError.textContent = cleanMsg;
+                createError.style.display = 'block';
+                previewDisplay.innerHTML = '<span class="preview-placeholder">Invalid input for this format</span>';
+                currentCanvas = null;
+                btnDownload.disabled = true;
+                btnCopyImage.disabled = true;
+            }
+        }
+
+        // --- Create: download PNG ---
+        btnDownload.addEventListener('click', () => {
+            if (!currentCanvas) return;
+            const link = document.createElement('a');
+            link.download = barcodeTypeSelect.value + '-' + Date.now() + '.png';
+            link.href = currentCanvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // --- Create: copy image ---
+        btnCopyImage.addEventListener('click', async () => {
+            if (!currentCanvas) return;
+            try {
+                const blob = await new Promise(resolve => currentCanvas.toBlob(resolve, 'image/png'));
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                showCopied(btnCopyImage, 'Copy image');
+            } catch {
+                // Fallback: copy data URL as text
+                try {
+                    await navigator.clipboard.writeText(currentCanvas.toDataURL('image/png'));
+                    showCopied(btnCopyImage, 'Copy image');
+                } catch {
+                    // Silently fail
+                }
+            }
+        });
+
+        function showCopied(btn, originalText) {
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('copied');
+            }, 2000);
+        }
+
+        // --- Read: Camera ---
+        btnCameraStart.addEventListener('click', startCamera);
+        btnCameraStop.addEventListener('click', stopCamera);
+
+        async function startCamera() {
+            readError.style.display = 'none';
+            cameraContainer.style.display = 'block';
+            btnCameraStart.style.display = 'none';
+            btnCameraStop.style.display = '';
+
+            try {
+                html5QrCode = new Html5Qrcode('camera-container');
+                await html5QrCode.start(
+                    { facingMode: 'environment' },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onScanSuccess,
+                    () => {} // ignore scan failures
+                );
+                cameraRunning = true;
+            } catch (e) {
+                readError.textContent = 'Could not access camera: ' + (e.message || e);
+                readError.style.display = 'block';
+                cameraContainer.style.display = 'none';
+                btnCameraStart.style.display = '';
+                btnCameraStop.style.display = 'none';
+                cameraRunning = false;
+            }
+        }
+
+        async function stopCamera() {
+            if (html5QrCode && cameraRunning) {
+                try {
+                    await html5QrCode.stop();
+                } catch {}
+                cameraRunning = false;
+            }
+            cameraContainer.style.display = 'none';
+            btnCameraStart.style.display = '';
+            btnCameraStop.style.display = 'none';
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            const formatName = getFormatName(decodedResult.result.format?.formatName);
+            showResult(formatName, decodedText);
+        }
+
+        // Auto-stop camera on page hide (battery saving)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && cameraRunning) {
+                stopCamera();
+            }
+        });
+
+        // --- Read: File upload ---
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        dropzone.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropzone.classList.add('drag-over');
+        });
+
+        dropzone.addEventListener('dragleave', e => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-over');
+        });
+
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-over');
+            if (e.dataTransfer.files[0]) {
+                processUpload(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', e => {
+            if (e.target.files[0]) processUpload(e.target.files[0]);
+        });
+
+        document.addEventListener('paste', e => {
+            // Only handle paste when read tab is active
+            if (!document.getElementById('panel-read').classList.contains('active')) return;
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    processUpload(item.getAsFile());
+                    break;
+                }
+            }
+        });
+
+        async function processUpload(file) {
+            readError.style.display = 'none';
+
+            // Stop camera if running (mutual exclusion)
+            if (cameraRunning) {
+                await stopCamera();
+            }
+
+            try {
+                const scanner = new Html5Qrcode('dropzone-scanner');
+                const result = await scanner.scanFile(file, true);
+                // scanFile only returns the text, not format info
+                showResult('Detected', result);
+                await scanner.clear();
+            } catch (e) {
+                readError.textContent = 'No barcode found in image. Try a clearer photo.';
+                readError.style.display = 'block';
+            }
+        }
+
+        // --- Read: Show result ---
+        function showResult(format, text) {
+            resultFormat.textContent = format;
+            resultText.textContent = text;
+            resultBox.style.display = 'block';
+        }
+
+        function getFormatName(raw) {
+            if (!raw) return 'Detected';
+            const map = {
+                'QR_CODE': 'QR Code',
+                'DATA_MATRIX': 'Data Matrix',
+                'PDF_417': 'PDF417',
+                'AZTEC': 'Aztec',
+                'EAN_13': 'EAN-13',
+                'EAN_8': 'EAN-8',
+                'UPC_A': 'UPC-A',
+                'UPC_E': 'UPC-E',
+                'CODE_128': 'Code 128',
+                'CODE_39': 'Code 39',
+                'CODE_93': 'Code 93',
+                'ITF': 'ITF',
+                'CODABAR': 'Codabar',
+                'RSS_14': 'RSS-14',
+                'RSS_EXPANDED': 'RSS Expanded',
+            };
+            return map[raw] || raw;
+        }
+
+        // --- Read: Copy result ---
+        btnCopyResult.addEventListener('click', async () => {
+            const text = resultText.textContent;
+            try {
+                await navigator.clipboard.writeText(text);
+                showCopied(btnCopyResult, 'Copy result');
+            } catch {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showCopied(btnCopyResult, 'Copy result');
+            }
+        });
+
+        // --- Init ---
+        barcodeDataInput.placeholder = FORMAT_INFO[barcodeTypeSelect.value].placeholder;
+    </script>
+    <!-- Hidden element for file scanning -->
+    <div id="dropzone-scanner" style="display:none;"></div>
+</body>
+</html>
