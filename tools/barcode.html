@@ -389,11 +389,13 @@
                 </div>
             </div>
 
-            <h2>Upload image</h2>
-            <div class="section-divider"></div>
-            <input type="file" id="file-input" accept="image/*">
-            <div class="dropzone" id="dropzone">
-                Drop an image here, click to select, or paste from clipboard
+            <div id="upload-section">
+                <h2>Upload image</h2>
+                <div class="section-divider"></div>
+                <input type="file" id="file-input" accept="image/*">
+                <div class="dropzone" id="dropzone">
+                    Drop an image here, click to select, or paste from clipboard
+                </div>
             </div>
             <div class="read-error" id="read-error"></div>
 
@@ -467,6 +469,7 @@
         const escapedSection = document.getElementById('escaped-section');
         const rawLabel = document.getElementById('raw-label');
         const btnCopyResult = document.getElementById('btn-copy-result');
+        const uploadSection = document.getElementById('upload-section');
 
         // --- Tab switching ---
         document.querySelectorAll('.tab').forEach(tab => {
@@ -637,6 +640,7 @@
             cameraContainer.style.display = 'block';
             btnCameraStart.style.display = 'none';
             btnCameraStop.style.display = '';
+            uploadSection.style.display = 'none';
 
             try {
                 html5QrCode = new Html5Qrcode('camera-container');
@@ -653,6 +657,7 @@
                 cameraContainer.style.display = 'none';
                 btnCameraStart.style.display = '';
                 btnCameraStop.style.display = 'none';
+                uploadSection.style.display = '';
                 cameraRunning = false;
             }
         }
@@ -667,6 +672,7 @@
             cameraContainer.style.display = 'none';
             btnCameraStart.style.display = '';
             btnCameraStop.style.display = 'none';
+            uploadSection.style.display = '';
         }
 
         function onScanSuccess(decodedText, decodedResult) {
