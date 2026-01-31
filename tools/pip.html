@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picture-in-Picture API Tester</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1rem;
+        }
+        .container {
+            background: #232323;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 540px;
+            margin-top: 2rem;
+        }
+        h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+        .tabs {
+            display: flex;
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 1.75rem;
+            flex-wrap: wrap;
+            gap: 2px;
+        }
+        .tab {
+            flex: 1;
+            padding: 0.6rem 0.5rem;
+            border: none;
+            background: none;
+            color: #888;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .tab.active {
+            background: #4a8cff;
+            color: #fff;
+        }
+        .tab:not(.active):hover {
+            color: #bbb;
+        }
+        .section-divider {
+            height: 1px;
+            background: #333;
+            margin: 1rem 0;
+        }
+        .panel {
+            display: none;
+        }
+        .panel.active {
+            display: block;
+        }
+        .option-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: 12px;
+        }
+        .option-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            min-width: 60px;
+        }
+        select, input[type="number"], input[type="text"] {
+            flex: 1;
+            padding: 8px 10px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        select:focus, input[type="number"]:focus, input[type="text"]:focus {
+            border-color: #4a8cff;
+        }
+        input[type="number"] {
+            width: 80px;
+            flex: none;
+        }
+        .btn {
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 2px solid #4a8cff;
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: #4a8cff;
+            color: #fff;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #3a7aee;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #4a8cff;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(74, 140, 255, 0.1);
+        }
+        .btn-danger {
+            border-color: #ff6b6b;
+            background: transparent;
+            color: #ff6b6b;
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+        .buttons .btn {
+            flex: 1;
+        }
+        .support-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .support-badge.supported {
+            background: #2a6e3f;
+            color: #7dffaa;
+        }
+        .support-badge.unsupported {
+            background: #5e2a2a;
+            color: #ff8a8a;
+        }
+        .support-list {
+            margin-bottom: 1rem;
+        }
+        .support-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+        .support-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .support-dot.yes { background: #4caf50; }
+        .support-dot.no { background: #ff6b6b; }
+        video {
+            width: 100%;
+            border-radius: 10px;
+            background: #000;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        canvas.visible-canvas {
+            width: 100%;
+            border-radius: 10px;
+            background: #000;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        .info-box {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        .info-box .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .info-box .info-row:last-child {
+            margin-bottom: 0;
+        }
+        .info-box .info-val {
+            color: #fff;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        .toggle-label {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        .toggle-label code {
+            background: #2a2a2a;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #444;
+            border-radius: 12px;
+            transition: 0.2s;
+        }
+        .toggle-slider:before {
+            content: '';
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .toggle input:checked + .toggle-slider {
+            background: #4a8cff;
+        }
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        .toggle input:disabled + .toggle-slider {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .event-log {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.78rem;
+            line-height: 1.6;
+            color: #888;
+        }
+        .event-log:empty::after {
+            content: 'No events yet...';
+            color: #555;
+        }
+        .event-log .ev {
+            border-bottom: 1px solid #262626;
+            padding: 2px 0;
+        }
+        .event-log .ev:last-child {
+            border-bottom: none;
+        }
+        .event-log .ev-time {
+            color: #666;
+        }
+        .event-log .ev-name {
+            color: #4a8cff;
+        }
+        .event-log .ev-detail {
+            color: #aaa;
+        }
+        .unsupported-msg {
+            background: #2a2020;
+            border: 1px solid #442a2a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #ff8a8a;
+        }
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+        .action-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+        .action-toggle .toggle-label {
+            font-size: 0.8rem;
+        }
+        .action-toggle .toggle {
+            transform: scale(0.85);
+        }
+        .metadata-inputs {
+            margin-bottom: 1rem;
+        }
+        .metadata-inputs input[type="text"] {
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+        .move-demo {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .move-demo .demo-el {
+            background: #4a8cff;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .log-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        .log-header h2 {
+            margin-bottom: 0;
+        }
+        .btn-clear-log {
+            background: none;
+            border: 1px solid #444;
+            color: #888;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-clear-log:hover {
+            color: #ccc;
+            border-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" data-panel="video">Video PiP</button>
+            <button class="tab" data-panel="document">Doc PiP</button>
+            <button class="tab" data-panel="media">Media Session</button>
+            <button class="tab" data-panel="canvas">Canvas PiP</button>
+        </div>
+
+        <!-- Video PiP Panel -->
+        <div id="panel-video" class="panel active">
+            <h2>API Support</h2>
+            <div class="section-divider"></div>
+            <div class="support-list" id="video-support"></div>
+
+            <h2>Test Video</h2>
+            <div class="section-divider"></div>
+            <video id="video-el" muted playsinline></video>
+
+            <div class="toggle-row">
+                <span class="toggle-label"><code>disablePictureInPicture</code></span>
+                <label class="toggle">
+                    <input type="checkbox" id="video-disable-pip">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-primary" id="btn-video-pip" disabled>Enter PiP</button>
+            </div>
+
+            <div class="info-box" id="video-pip-info" style="display:none;">
+                <div class="info-row">
+                    <span>PiP Window Size</span>
+                    <span class="info-val" id="video-pip-size">-</span>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+            <div class="log-header">
+                <h2>Event Log</h2>
+                <button class="btn-clear-log" data-log="video-log">Clear</button>
+            </div>
+            <div class="event-log" id="video-log"></div>
+        </div>
+
+        <!-- Document PiP Panel -->
+        <div id="panel-document" class="panel">
+            <h2>API Support</h2>
+            <div class="section-divider"></div>
+            <div class="support-list" id="doc-support"></div>
+            <div class="unsupported-msg" id="doc-unsupported" style="display:none;">
+                Document Picture-in-Picture requires Chrome 116+ or Edge 116+. This API is not supported in your browser.
+            </div>
+
+            <div id="doc-controls">
+                <h2>Window Options</h2>
+                <div class="section-divider"></div>
+                <div class="option-row">
+                    <label class="option-label">Width</label>
+                    <input type="number" id="doc-width" value="400" min="100" max="1200">
+                </div>
+                <div class="option-row">
+                    <label class="option-label">Height</label>
+                    <input type="number" id="doc-height" value="300" min="100" max="900">
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label"><code>disallowReturnToOpener</code></span>
+                    <label class="toggle">
+                        <input type="checkbox" id="doc-disallow-return">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label"><code>preferInitialWindowPlacement</code></span>
+                    <label class="toggle">
+                        <input type="checkbox" id="doc-prefer-initial">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-primary" id="btn-doc-pip">Open Document PiP</button>
+                </div>
+
+                <h2>Move Element Demo</h2>
+                <div class="section-divider"></div>
+                <div class="move-demo" id="move-demo-container">
+                    <div class="demo-el" id="movable-el">Movable Element</div>
+                    <button class="btn btn-outline" id="btn-move-el" disabled>Move to PiP Window</button>
+                </div>
+
+                <div class="section-divider"></div>
+                <div class="log-header">
+                    <h2>Event Log</h2>
+                    <button class="btn-clear-log" data-log="doc-log">Clear</button>
+                </div>
+                <div class="event-log" id="doc-log"></div>
+            </div>
+        </div>
+
+        <!-- Media Session Panel -->
+        <div id="panel-media" class="panel">
+            <h2>API Support</h2>
+            <div class="section-divider"></div>
+            <div class="support-list" id="media-support"></div>
+            <div class="unsupported-msg" id="media-unsupported" style="display:none;">
+                Media Session API is not supported in your browser.
+            </div>
+
+            <div id="media-controls">
+                <h2>Video with PiP</h2>
+                <div class="section-divider"></div>
+                <video id="media-video-el" muted playsinline></video>
+                <div class="buttons">
+                    <button class="btn btn-primary" id="btn-media-pip" disabled>Enter PiP</button>
+                </div>
+
+                <h2>Action Handlers</h2>
+                <div class="section-divider"></div>
+                <div class="action-grid" id="action-grid"></div>
+
+                <h2>Metadata</h2>
+                <div class="section-divider"></div>
+                <div class="metadata-inputs">
+                    <input type="text" id="meta-title" placeholder="Title">
+                    <input type="text" id="meta-artist" placeholder="Artist">
+                    <input type="text" id="meta-album" placeholder="Album">
+                </div>
+                <div class="buttons">
+                    <button class="btn btn-outline" id="btn-set-metadata">Set Metadata</button>
+                </div>
+
+                <div class="section-divider"></div>
+                <div class="log-header">
+                    <h2>Event Log</h2>
+                    <button class="btn-clear-log" data-log="media-log">Clear</button>
+                </div>
+                <div class="event-log" id="media-log"></div>
+            </div>
+        </div>
+
+        <!-- Canvas PiP Panel -->
+        <div id="panel-canvas" class="panel">
+            <h2>Canvas Animation</h2>
+            <div class="section-divider"></div>
+            <canvas id="canvas-el" class="visible-canvas" width="480" height="300"></canvas>
+
+            <div class="option-row">
+                <label class="option-label">Animation</label>
+                <select id="canvas-anim">
+                    <option value="balls">Bouncing Balls</option>
+                    <option value="gradient">Gradient Cycle</option>
+                    <option value="clock">Clock</option>
+                </select>
+            </div>
+            <div class="option-row">
+                <label class="option-label">FPS</label>
+                <input type="number" id="canvas-fps" value="30" min="1" max="60">
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-primary" id="btn-canvas-pip">Capture & Enter PiP</button>
+                <button class="btn btn-danger" id="btn-canvas-stop" disabled>Stop Stream</button>
+            </div>
+
+            <div class="section-divider"></div>
+            <div class="log-header">
+                <h2>Event Log</h2>
+                <button class="btn-clear-log" data-log="canvas-log">Clear</button>
+            </div>
+            <div class="event-log" id="canvas-log"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== Shared Helpers ==========
+
+        function logEvent(logId, name, detail) {
+            const log = document.getElementById(logId);
+            const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+            const div = document.createElement('div');
+            div.className = 'ev';
+            div.innerHTML = '<span class="ev-time">' + time + '</span> <span class="ev-name">' + name + '</span>' +
+                (detail ? ' <span class="ev-detail">' + detail + '</span>' : '');
+            log.prepend(div);
+        }
+
+        function supportDot(supported) {
+            return '<div class="support-item"><span class="support-dot ' + (supported ? 'yes' : 'no') + '"></span>';
+        }
+
+        function createTestStream(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            let x = w / 2, y = h / 2, dx = 2.5, dy = 2;
+            const r = 20;
+
+            function frame() {
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, w, h);
+                x += dx; y += dy;
+                if (x - r <= 0 || x + r >= w) dx = -dx;
+                if (y - r <= 0 || y + r >= h) dy = -dy;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fillStyle = '#4a8cff';
+                ctx.fill();
+                ctx.font = '14px sans-serif';
+                ctx.fillStyle = '#666';
+                ctx.textAlign = 'center';
+                ctx.fillText('PiP Test Stream', w / 2, h - 16);
+            }
+
+            const id = setInterval(frame, 1000 / 30);
+            frame();
+            const stream = canvas.captureStream(30);
+            stream._intervalId = id;
+            return stream;
+        }
+
+        // Clear log buttons
+        document.querySelectorAll('.btn-clear-log').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById(btn.dataset.log).innerHTML = '';
+            });
+        });
+
+        // ========== Tab Switching ==========
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+            });
+        });
+
+        // ========== Tab 1: Video PiP ==========
+
+        (function() {
+            const video = document.getElementById('video-el');
+            const supportDiv = document.getElementById('video-support');
+            const btnPip = document.getElementById('btn-video-pip');
+            const disablePipToggle = document.getElementById('video-disable-pip');
+            const pipInfo = document.getElementById('video-pip-info');
+            const pipSize = document.getElementById('video-pip-size');
+
+            const hasPipEnabled = 'pictureInPictureEnabled' in document;
+            const hasRequestPip = HTMLVideoElement.prototype.hasOwnProperty('requestPictureInPicture');
+
+            supportDiv.innerHTML =
+                supportDot(hasPipEnabled) + '<code>document.pictureInPictureEnabled</code>: ' + (hasPipEnabled ? document.pictureInPictureEnabled : 'N/A') + '</div>' +
+                supportDot(hasRequestPip) + '<code>requestPictureInPicture()</code>: ' + (hasRequestPip ? 'Available' : 'N/A') + '</div>';
+
+            // Set up test video from canvas stream
+            const offscreen = document.createElement('canvas');
+            offscreen.width = 320;
+            offscreen.height = 240;
+            const stream = createTestStream(offscreen);
+            video.srcObject = stream;
+            video.play().then(() => {
+                if (hasRequestPip) btnPip.disabled = false;
+            }).catch(() => {});
+
+            let pipWindow = null;
+
+            disablePipToggle.addEventListener('change', () => {
+                video.disablePictureInPicture = disablePipToggle.checked;
+                logEvent('video-log', 'disablePictureInPicture', String(disablePipToggle.checked));
+            });
+
+            btnPip.addEventListener('click', async () => {
+                try {
+                    if (document.pictureInPictureElement === video) {
+                        await document.exitPictureInPicture();
+                    } else {
+                        await video.requestPictureInPicture();
+                    }
+                } catch (e) {
+                    logEvent('video-log', 'error', e.message);
+                }
+            });
+
+            video.addEventListener('enterpictureinpicture', (e) => {
+                pipWindow = e.pictureInPictureWindow;
+                btnPip.textContent = 'Exit PiP';
+                pipInfo.style.display = '';
+                pipSize.textContent = pipWindow.width + ' x ' + pipWindow.height;
+                logEvent('video-log', 'enterpictureinpicture', pipWindow.width + 'x' + pipWindow.height);
+
+                pipWindow.addEventListener('resize', () => {
+                    pipSize.textContent = pipWindow.width + ' x ' + pipWindow.height;
+                    logEvent('video-log', 'resize', pipWindow.width + 'x' + pipWindow.height);
+                });
+            });
+
+            video.addEventListener('leavepictureinpicture', () => {
+                btnPip.textContent = 'Enter PiP';
+                pipInfo.style.display = 'none';
+                pipWindow = null;
+                logEvent('video-log', 'leavepictureinpicture', '');
+            });
+        })();
+
+        // ========== Tab 2: Document PiP ==========
+
+        (function() {
+            const supportDiv = document.getElementById('doc-support');
+            const unsupportedMsg = document.getElementById('doc-unsupported');
+            const controls = document.getElementById('doc-controls');
+            const btnDocPip = document.getElementById('btn-doc-pip');
+            const btnMoveEl = document.getElementById('btn-move-el');
+            const movableEl = document.getElementById('movable-el');
+            const moveContainer = document.getElementById('move-demo-container');
+
+            const hasDocPip = 'documentPictureInPicture' in window;
+
+            supportDiv.innerHTML =
+                supportDot(hasDocPip) + '<code>documentPictureInPicture</code>: ' + (hasDocPip ? 'Available' : 'Not supported') + '</div>';
+
+            if (!hasDocPip) {
+                unsupportedMsg.style.display = '';
+                controls.querySelectorAll('.btn, input, select').forEach(el => el.disabled = true);
+                controls.querySelectorAll('.toggle input').forEach(el => el.disabled = true);
+            }
+
+            let docPipWindow = null;
+            let elInPip = false;
+
+            btnDocPip.addEventListener('click', async () => {
+                if (!hasDocPip) return;
+
+                if (docPipWindow && !docPipWindow.closed) {
+                    docPipWindow.close();
+                    docPipWindow = null;
+                    btnDocPip.textContent = 'Open Document PiP';
+                    btnMoveEl.disabled = true;
+                    return;
+                }
+
+                try {
+                    const opts = {
+                        width: parseInt(document.getElementById('doc-width').value) || 400,
+                        height: parseInt(document.getElementById('doc-height').value) || 300,
+                    };
+                    if (document.getElementById('doc-disallow-return').checked) {
+                        opts.disallowReturnToOpener = true;
+                    }
+                    if (document.getElementById('doc-prefer-initial').checked) {
+                        opts.preferInitialWindowPlacement = true;
+                    }
+
+                    docPipWindow = await documentPictureInPicture.requestWindow(opts);
+                    btnDocPip.textContent = 'Close Document PiP';
+                    btnMoveEl.disabled = false;
+                    logEvent('doc-log', 'window opened', opts.width + 'x' + opts.height);
+
+                    // Style the PiP window
+                    const style = docPipWindow.document.createElement('style');
+                    style.textContent = 'body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a1a; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 1rem; }' +
+                        '.clock { font-size: 3rem; font-weight: 200; letter-spacing: 2px; font-family: "SF Mono", "Fira Code", monospace; margin-bottom: 0.5rem; }' +
+                        '.date { font-size: 1rem; color: #888; }' +
+                        '.demo-el { background: #4a8cff; color: #fff; padding: 1rem; border-radius: 8px; font-weight: 600; margin-top: 1rem; }';
+                    docPipWindow.document.head.appendChild(style);
+
+                    // Clock content
+                    const clockDiv = docPipWindow.document.createElement('div');
+                    clockDiv.className = 'clock';
+                    const dateDiv = docPipWindow.document.createElement('div');
+                    dateDiv.className = 'date';
+                    docPipWindow.document.body.appendChild(clockDiv);
+                    docPipWindow.document.body.appendChild(dateDiv);
+
+                    function updateClock() {
+                        const now = new Date();
+                        clockDiv.textContent = now.toLocaleTimeString('en-GB', { hour12: false });
+                        dateDiv.textContent = now.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    }
+                    updateClock();
+                    const clockInterval = setInterval(updateClock, 1000);
+
+                    docPipWindow.addEventListener('pagehide', () => {
+                        clearInterval(clockInterval);
+                        logEvent('doc-log', 'pagehide', '');
+                        btnDocPip.textContent = 'Open Document PiP';
+                        btnMoveEl.disabled = true;
+
+                        // Move element back if it's in the PiP window
+                        if (elInPip) {
+                            moveContainer.prepend(movableEl);
+                            btnMoveEl.textContent = 'Move to PiP Window';
+                            elInPip = false;
+                        }
+                        docPipWindow = null;
+                    });
+                } catch (e) {
+                    logEvent('doc-log', 'error', e.message);
+                }
+            });
+
+            if (hasDocPip) {
+                documentPictureInPicture.addEventListener('enter', () => {
+                    logEvent('doc-log', 'enter', '');
+                });
+            }
+
+            btnMoveEl.addEventListener('click', () => {
+                if (!docPipWindow || docPipWindow.closed) return;
+                if (!elInPip) {
+                    docPipWindow.document.body.appendChild(movableEl);
+                    btnMoveEl.textContent = 'Move Back to Page';
+                    elInPip = true;
+                    logEvent('doc-log', 'element moved', 'to PiP');
+                } else {
+                    moveContainer.prepend(movableEl);
+                    btnMoveEl.textContent = 'Move to PiP Window';
+                    elInPip = false;
+                    logEvent('doc-log', 'element moved', 'to page');
+                }
+            });
+        })();
+
+        // ========== Tab 3: Media Session ==========
+
+        (function() {
+            const supportDiv = document.getElementById('media-support');
+            const unsupportedMsg = document.getElementById('media-unsupported');
+            const mediaControls = document.getElementById('media-controls');
+            const video = document.getElementById('media-video-el');
+            const btnPip = document.getElementById('btn-media-pip');
+            const actionGrid = document.getElementById('action-grid');
+
+            const hasMediaSession = 'mediaSession' in navigator;
+            const hasRequestPip = HTMLVideoElement.prototype.hasOwnProperty('requestPictureInPicture');
+
+            supportDiv.innerHTML =
+                supportDot(hasMediaSession) + '<code>navigator.mediaSession</code>: ' + (hasMediaSession ? 'Available' : 'Not supported') + '</div>' +
+                supportDot(hasRequestPip) + '<code>requestPictureInPicture()</code>: ' + (hasRequestPip ? 'Available' : 'N/A') + '</div>';
+
+            if (!hasMediaSession) {
+                unsupportedMsg.style.display = '';
+                mediaControls.querySelectorAll('.btn, input, select').forEach(el => el.disabled = true);
+            }
+
+            // Set up video
+            const offscreen = document.createElement('canvas');
+            offscreen.width = 320;
+            offscreen.height = 240;
+            const stream = createTestStream(offscreen);
+            video.srcObject = stream;
+            video.play().then(() => {
+                if (hasRequestPip) btnPip.disabled = false;
+            }).catch(() => {});
+
+            btnPip.addEventListener('click', async () => {
+                try {
+                    if (document.pictureInPictureElement === video) {
+                        await document.exitPictureInPicture();
+                        btnPip.textContent = 'Enter PiP';
+                    } else {
+                        await video.requestPictureInPicture();
+                        btnPip.textContent = 'Exit PiP';
+                    }
+                } catch (e) {
+                    logEvent('media-log', 'error', e.message);
+                }
+            });
+
+            video.addEventListener('leavepictureinpicture', () => {
+                btnPip.textContent = 'Enter PiP';
+            });
+
+            // Action handlers
+            const actions = ['play', 'pause', 'previoustrack', 'nexttrack', 'seekbackward', 'seekforward'];
+            actions.forEach(action => {
+                const item = document.createElement('div');
+                item.className = 'action-toggle';
+                item.innerHTML =
+                    '<span class="toggle-label">' + action + '</span>' +
+                    '<label class="toggle"><input type="checkbox" data-action="' + action + '"' + (hasMediaSession ? '' : ' disabled') + '><span class="toggle-slider"></span></label>';
+                actionGrid.appendChild(item);
+
+                item.querySelector('input').addEventListener('change', function() {
+                    if (!hasMediaSession) return;
+                    if (this.checked) {
+                        navigator.mediaSession.setActionHandler(action, () => {
+                            logEvent('media-log', 'action', action);
+                        });
+                        logEvent('media-log', 'handler set', action);
+                    } else {
+                        navigator.mediaSession.setActionHandler(action, null);
+                        logEvent('media-log', 'handler removed', action);
+                    }
+                });
+            });
+
+            // Metadata
+            document.getElementById('btn-set-metadata').addEventListener('click', () => {
+                if (!hasMediaSession) return;
+                const title = document.getElementById('meta-title').value || 'PiP Test';
+                const artist = document.getElementById('meta-artist').value || '';
+                const album = document.getElementById('meta-album').value || '';
+
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: title,
+                    artist: artist,
+                    album: album,
+                });
+                logEvent('media-log', 'metadata set', title + (artist ? ' - ' + artist : ''));
+            });
+        })();
+
+        // ========== Tab 4: Canvas PiP ==========
+
+        (function() {
+            const canvas = document.getElementById('canvas-el');
+            const ctx = canvas.getContext('2d');
+            const animSelect = document.getElementById('canvas-anim');
+            const fpsInput = document.getElementById('canvas-fps');
+            const btnCapture = document.getElementById('btn-canvas-pip');
+            const btnStop = document.getElementById('btn-canvas-stop');
+
+            let animId = null;
+            let capturedStream = null;
+            let hiddenVideo = null;
+            const w = canvas.width, h = canvas.height;
+
+            // Ball state for bouncing balls animation
+            const balls = [];
+            for (let i = 0; i < 8; i++) {
+                balls.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    dx: (Math.random() - 0.5) * 4,
+                    dy: (Math.random() - 0.5) * 4,
+                    r: 10 + Math.random() * 20,
+                    color: 'hsl(' + (Math.random() * 360) + ', 70%, 60%)',
+                });
+            }
+
+            let gradientPhase = 0;
+
+            function drawBalls() {
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, w, h);
+                balls.forEach(b => {
+                    b.x += b.dx; b.y += b.dy;
+                    if (b.x - b.r <= 0 || b.x + b.r >= w) b.dx = -b.dx;
+                    if (b.y - b.r <= 0 || b.y + b.r >= h) b.dy = -b.dy;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    ctx.fillStyle = b.color;
+                    ctx.fill();
+                });
+            }
+
+            function drawGradient() {
+                gradientPhase += 0.01;
+                const grad = ctx.createLinearGradient(0, 0, w, h);
+                grad.addColorStop(0, 'hsl(' + ((gradientPhase * 60) % 360) + ', 70%, 40%)');
+                grad.addColorStop(0.5, 'hsl(' + (((gradientPhase * 60) + 120) % 360) + ', 70%, 50%)');
+                grad.addColorStop(1, 'hsl(' + (((gradientPhase * 60) + 240) % 360) + ', 70%, 40%)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+            }
+
+            function drawClock() {
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, w, h);
+                const now = new Date();
+                const cx = w / 2, cy = h / 2, radius = Math.min(w, h) / 2 - 20;
+
+                // Face
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = '#4a8cff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Hour marks
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i * Math.PI) / 6 - Math.PI / 2;
+                    const inner = radius - 12;
+                    ctx.beginPath();
+                    ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner);
+                    ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
+                    ctx.strokeStyle = '#666';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                // Hours hand
+                const hr = ((now.getHours() % 12) + now.getMinutes() / 60) * (Math.PI / 6) - Math.PI / 2;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(hr) * radius * 0.5, cy + Math.sin(hr) * radius * 0.5);
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                // Minutes hand
+                const mn = (now.getMinutes() + now.getSeconds() / 60) * (Math.PI / 30) - Math.PI / 2;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(mn) * radius * 0.7, cy + Math.sin(mn) * radius * 0.7);
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Seconds hand
+                const sc = now.getSeconds() * (Math.PI / 30) - Math.PI / 2;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(sc) * radius * 0.8, cy + Math.sin(sc) * radius * 0.8);
+                ctx.strokeStyle = '#4a8cff';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Center dot
+                ctx.beginPath();
+                ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#4a8cff';
+                ctx.fill();
+
+                // Digital time
+                ctx.font = '14px "SF Mono", "Fira Code", monospace';
+                ctx.fillStyle = '#888';
+                ctx.textAlign = 'center';
+                ctx.fillText(now.toLocaleTimeString('en-GB', { hour12: false }), cx, cy + radius + 16);
+            }
+
+            const animations = { balls: drawBalls, gradient: drawGradient, clock: drawClock };
+
+            function runAnimation() {
+                if (animId) cancelAnimationFrame(animId);
+                function loop() {
+                    animations[animSelect.value]();
+                    animId = requestAnimationFrame(loop);
+                }
+                loop();
+            }
+
+            animSelect.addEventListener('change', () => {
+                logEvent('canvas-log', 'animation', animSelect.value);
+            });
+
+            runAnimation();
+
+            btnCapture.addEventListener('click', async () => {
+                const fps = Math.max(1, Math.min(60, parseInt(fpsInput.value) || 30));
+                try {
+                    capturedStream = canvas.captureStream(fps);
+                    logEvent('canvas-log', 'captureStream', fps + ' fps');
+
+                    hiddenVideo = document.createElement('video');
+                    hiddenVideo.muted = true;
+                    hiddenVideo.playsInline = true;
+                    hiddenVideo.srcObject = capturedStream;
+                    await hiddenVideo.play();
+
+                    await hiddenVideo.requestPictureInPicture();
+                    btnCapture.disabled = true;
+                    btnStop.disabled = false;
+                    logEvent('canvas-log', 'enterpictureinpicture', '');
+
+                    hiddenVideo.addEventListener('leavepictureinpicture', () => {
+                        logEvent('canvas-log', 'leavepictureinpicture', '');
+                        stopCanvasStream();
+                    });
+                } catch (e) {
+                    logEvent('canvas-log', 'error', e.message);
+                }
+            });
+
+            function stopCanvasStream() {
+                if (document.pictureInPictureElement === hiddenVideo) {
+                    document.exitPictureInPicture().catch(() => {});
+                }
+                if (capturedStream) {
+                    capturedStream.getTracks().forEach(t => t.stop());
+                    capturedStream = null;
+                }
+                if (hiddenVideo) {
+                    hiddenVideo.srcObject = null;
+                    hiddenVideo = null;
+                }
+                btnCapture.disabled = false;
+                btnStop.disabled = true;
+                logEvent('canvas-log', 'stream stopped', '');
+            }
+
+            btnStop.addEventListener('click', stopCanvasStream);
+
+            // Expose for cleanup
+            window._cleanupCanvas = stopCanvasStream;
+        })();
+
+        // ========== Global Cleanup ==========
+
+        window.addEventListener('beforeunload', () => {
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture().catch(() => {});
+            }
+            if (window._cleanupCanvas) window._cleanupCanvas();
+        });
+    </script>
+</body>
+</html>
