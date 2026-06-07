@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metadata Viewer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1rem;
+        }
+        .container {
+            background: #232323;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 720px;
+            margin-top: 2rem;
+        }
+        @media (max-width: 600px) {
+            body { padding: 0; }
+            .container { border-radius: 0; margin-top: 0; padding: 1.25rem; }
+        }
+        h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+        .subtitle {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        input[type="file"] { display: none; }
+        .dropzone {
+            width: 100%;
+            min-height: 130px;
+            border: 2px dashed #444;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #888;
+            cursor: pointer;
+            padding: 1.25rem;
+            transition: all 0.2s;
+        }
+        .dropzone:hover {
+            border-color: #666;
+            color: #aaa;
+        }
+        .dropzone.drag-over {
+            border-color: #4a8cff;
+            background: #2a2a2a;
+            color: #fff;
+        }
+        .toolbar {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid #4a8cff;
+            background: transparent;
+            color: #4a8cff;
+            transition: all 0.15s;
+        }
+        .btn:hover { background: rgba(74, 140, 255, 0.12); }
+        .btn.done {
+            background: #3a9a5c;
+            border-color: #3a9a5c;
+            color: #fff;
+        }
+        .btn.secondary {
+            border-color: #555;
+            color: #bbb;
+        }
+        .btn.secondary:hover { background: #2a2a2a; }
+        #results { margin-top: 1.25rem; }
+        .panel {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.1rem 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .panel-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #7d8590;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            color: #fff;
+        }
+        .kv {
+            display: grid;
+            grid-template-columns: minmax(110px, 190px) 1fr;
+            gap: 0.45rem 1rem;
+        }
+        .kv .k {
+            color: #8b949e;
+            font-size: 0.85rem;
+            word-break: break-word;
+        }
+        .kv .v {
+            color: #e6edf3;
+            font-size: 0.85rem;
+            word-break: break-word;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+        .kv .v a { color: #6bb3ff; }
+        @media (max-width: 480px) {
+            .kv { grid-template-columns: 1fr; gap: 0.15rem; }
+            .kv .k { margin-top: 0.6rem; }
+            .kv .k:first-child { margin-top: 0; }
+        }
+        .preview-img {
+            max-width: 100%;
+            max-height: 320px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        pre.hex, pre.text-preview {
+            background: #1c1c1c;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 0.85rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            color: #c9d1d9;
+            white-space: pre;
+        }
+        pre.text-preview { white-space: pre-wrap; word-break: break-word; max-height: 360px; }
+        .map-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            background: #1f3a5f;
+            color: #9ecbff !important;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .map-link:hover { background: #244873; }
+        .note {
+            font-size: 0.75rem;
+            color: #777;
+            margin-top: 0.6rem;
+            line-height: 1.4;
+        }
+        .empty {
+            color: #777;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Metadata Viewer</h1>
+        <p class="subtitle">
+            Drop in any file to inspect its metadata — type, size, hashes, image EXIF &amp; GPS,
+            audio/video details, and more. Everything runs locally in your browser; no file is ever uploaded.
+        </p>
+
+        <input type="file" id="fileInput">
+        <div class="dropzone" id="dropzone">
+            Drop a file here, click to choose, or paste from clipboard
+        </div>
+
+        <div class="toolbar" id="toolbar">
+            <button class="btn secondary" id="newFileBtn">Choose another file</button>
+            <button class="btn" id="copyBtn">Copy report (JSON)</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const HEAD_BYTES = 262144;            // read first 256 KB for structural parsing
+        const AUTO_HASH_LIMIT = 25 * 1024 * 1024;
+        const FULL_TEXT_LIMIT = 5 * 1024 * 1024;
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const results = document.getElementById('results');
+        const toolbar = document.getElementById('toolbar');
+        const copyBtn = document.getElementById('copyBtn');
+        const newFileBtn = document.getElementById('newFileBtn');
+
+        let report = {};
+        let objectUrls = [];
+
+        const CATEGORY_COLORS = {
+            image: '#3a7bd5', audio: '#9b59b6', video: '#c0392b',
+            archive: '#d68910', document: '#16a085', text: '#27ae60',
+            font: '#8e44ad', executable: '#7f8c8d', other: '#566573'
+        };
+
+        // ---------- input wiring ----------
+        dropzone.addEventListener('click', () => fileInput.click());
+        newFileBtn.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+        dropzone.addEventListener('dragleave', e => { e.preventDefault(); dropzone.classList.remove('drag-over'); });
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-over');
+            if (e.dataTransfer.files[0]) analyze(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', e => { if (e.target.files[0]) analyze(e.target.files[0]); });
+        document.addEventListener('paste', e => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.kind === 'file') { analyze(item.getAsFile()); break; }
+            }
+        });
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(JSON.stringify(report, null, 2)).then(() => {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.add('done');
+                setTimeout(() => { copyBtn.textContent = 'Copy report (JSON)'; copyBtn.classList.remove('done'); }, 2000);
+            });
+        });
+
+        // ---------- helpers ----------
+        function fmtBytes(n) {
+            if (n < 1024) return n + ' B';
+            const units = ['KB', 'MB', 'GB', 'TB'];
+            let i = -1, v = n;
+            do { v /= 1024; i++; } while (v >= 1024 && i < units.length - 1);
+            return v.toFixed(v < 10 ? 2 : 1) + ' ' + units[i];
+        }
+        function fmtDate(ms) {
+            if (!ms) return 'Unknown';
+            const d = new Date(ms);
+            return d.toLocaleString() + '  (' + d.toISOString() + ')';
+        }
+        function fmtDuration(sec) {
+            if (!isFinite(sec)) return 'Unknown';
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            const s = (sec % 60);
+            const pad = x => String(Math.floor(x)).padStart(2, '0');
+            const base = (h > 0 ? h + ':' + pad(m) : m) + ':' + pad(s);
+            return base + ' (' + sec.toFixed(2) + ' s)';
+        }
+        function newObjectUrl(file) {
+            const url = URL.createObjectURL(file);
+            objectUrls.push(url);
+            return url;
+        }
+
+        // Build a panel; rows is an array of [label, value] or {custom:HTMLElement}
+        function panel(title, rows, opts = {}) {
+            const p = document.createElement('div');
+            p.className = 'panel';
+            const t = document.createElement('div');
+            t.className = 'panel-title';
+            t.textContent = title;
+            if (opts.badge) {
+                const b = document.createElement('span');
+                b.className = 'badge';
+                b.textContent = opts.badge;
+                b.style.background = opts.badgeColor || '#566573';
+                t.appendChild(b);
+            }
+            p.appendChild(t);
+            if (opts.prepend) p.appendChild(opts.prepend);
+
+            if (rows && rows.length) {
+                const grid = document.createElement('div');
+                grid.className = 'kv';
+                for (const row of rows) {
+                    if (row == null) continue;
+                    const [k, v, isHtml] = row;
+                    const kEl = document.createElement('div');
+                    kEl.className = 'k';
+                    kEl.textContent = k;
+                    const vEl = document.createElement('div');
+                    vEl.className = 'v';
+                    if (isHtml && v instanceof Node) vEl.appendChild(v);
+                    else vEl.textContent = (v === '' || v == null) ? '—' : v;
+                    grid.appendChild(kEl);
+                    grid.appendChild(vEl);
+                }
+                p.appendChild(grid);
+            }
+            if (opts.append) p.appendChild(opts.append);
+            results.appendChild(p);
+            return p;
+        }
+
+        // ---------- magic-byte detection ----------
+        function detectType(b) {
+            const t = (description, mime, category) => ({ description, mime, category });
+            const sig = (arr, off = 0) => arr.every((v, i) => b[off + i] === v);
+            const ascii = (s, off = 0) => { for (let i = 0; i < s.length; i++) if (b[off + i] !== s.charCodeAt(i)) return false; return true; };
+
+            if (sig([0xFF, 0xD8, 0xFF])) return t('JPEG image', 'image/jpeg', 'image');
+            if (sig([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])) return t('PNG image', 'image/png', 'image');
+            if (ascii('GIF87a') || ascii('GIF89a')) return t('GIF image', 'image/gif', 'image');
+            if (ascii('RIFF') && ascii('WEBP', 8)) return t('WebP image', 'image/webp', 'image');
+            if (ascii('RIFF') && ascii('WAVE', 8)) return t('WAV audio', 'audio/wav', 'audio');
+            if (ascii('RIFF') && ascii('AVI ', 8)) return t('AVI video', 'video/x-msvideo', 'video');
+            if (sig([0x42, 0x4D])) return t('BMP image', 'image/bmp', 'image');
+            if (sig([0x49, 0x49, 0x2A, 0x00]) || sig([0x4D, 0x4D, 0x00, 0x2A])) return t('TIFF image', 'image/tiff', 'image');
+            if (sig([0x00, 0x00, 0x01, 0x00])) return t('ICO icon', 'image/x-icon', 'image');
+            if (sig([0x1A, 0x45, 0xDF, 0xA3])) return t('Matroska / WebM', 'video/webm', 'video');
+            if (ascii('ftyp', 4)) {
+                const brand = String.fromCharCode(b[8], b[9], b[10], b[11]);
+                const heif = ['heic', 'heix', 'hevc', 'hevx', 'mif1', 'msf1', 'heim', 'heis'];
+                if (heif.includes(brand)) return t('HEIF / HEIC image', 'image/heic', 'image');
+                if (brand === 'avif' || brand === 'avis') return t('AVIF image', 'image/avif', 'image');
+                if (brand === 'M4A ') return t('M4A audio', 'audio/mp4', 'audio');
+                if (brand === 'qt  ') return t('QuickTime video', 'video/quicktime', 'video');
+                if (brand === 'M4V ') return t('M4V video', 'video/x-m4v', 'video');
+                return t('MP4 video (' + brand.trim() + ')', 'video/mp4', 'video');
+            }
+            if (ascii('ID3') || sig([0xFF, 0xFB]) || sig([0xFF, 0xF3]) || sig([0xFF, 0xF2])) return t('MP3 audio', 'audio/mpeg', 'audio');
+            if (ascii('OggS')) return t('Ogg container', 'application/ogg', 'audio');
+            if (ascii('fLaC')) return t('FLAC audio', 'audio/flac', 'audio');
+            if (ascii('%PDF')) return t('PDF document', 'application/pdf', 'document');
+            if (ascii('%!PS')) return t('PostScript', 'application/postscript', 'document');
+            if (sig([0x7B, 0x5C, 0x72, 0x74, 0x66])) return t('Rich Text Format', 'application/rtf', 'document');
+            if (sig([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1])) return t('Microsoft Office (legacy)', 'application/x-ole-storage', 'document');
+            if (sig([0x50, 0x4B, 0x03, 0x04]) || sig([0x50, 0x4B, 0x05, 0x06]) || sig([0x50, 0x4B, 0x07, 0x08])) return t('ZIP archive', 'application/zip', 'archive');
+            if (sig([0x1F, 0x8B])) return t('GZIP archive', 'application/gzip', 'archive');
+            if (sig([0x42, 0x5A, 0x68])) return t('BZIP2 archive', 'application/x-bzip2', 'archive');
+            if (sig([0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C])) return t('7-Zip archive', 'application/x-7z-compressed', 'archive');
+            if (sig([0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00])) return t('XZ archive', 'application/x-xz', 'archive');
+            if (ascii('Rar!')) return t('RAR archive', 'application/vnd.rar', 'archive');
+            if (ascii('ustar', 257)) return t('TAR archive', 'application/x-tar', 'archive');
+            if (sig([0x7F, 0x45, 0x4C, 0x46])) return t('ELF executable', 'application/x-elf', 'executable');
+            if (sig([0x4D, 0x5A])) return t('Windows executable (PE)', 'application/x-msdownload', 'executable');
+            if (sig([0xCA, 0xFE, 0xBA, 0xBE])) return t('Java class / Mach-O', 'application/java-vm', 'executable');
+            if (sig([0xFE, 0xED, 0xFA, 0xCE]) || sig([0xFE, 0xED, 0xFA, 0xCF]) || sig([0xCF, 0xFA, 0xED, 0xFE])) return t('Mach-O executable', 'application/x-mach-binary', 'executable');
+            if (ascii('OTTO')) return t('OpenType font', 'font/otf', 'font');
+            if (sig([0x00, 0x01, 0x00, 0x00, 0x00])) return t('TrueType font', 'font/ttf', 'font');
+            if (ascii('ttcf')) return t('TrueType collection', 'font/collection', 'font');
+            if (ascii('wOFF')) return t('WOFF font', 'font/woff', 'font');
+            if (ascii('wOF2')) return t('WOFF2 font', 'font/woff2', 'font');
+            if (ascii('<?xml') || ascii('﻿<?xml')) {
+                // could be SVG or generic XML — refine later when we look at content
+                return t('XML document', 'application/xml', 'text');
+            }
+            if (ascii('<svg')) return t('SVG image', 'image/svg+xml', 'image');
+            return null;
+        }
+
+        const EXT_OFFICE = {
+            docx: 'Word document (OOXML)', xlsx: 'Excel spreadsheet (OOXML)', pptx: 'PowerPoint (OOXML)',
+            jar: 'Java archive', apk: 'Android package', epub: 'EPUB e-book',
+            odt: 'OpenDocument text', ods: 'OpenDocument sheet', odp: 'OpenDocument presentation',
+            kmz: 'Google Earth KMZ', xpi: 'Firefox add-on', whl: 'Python wheel'
+        };
+
+        function isProbablyText(b) {
+            const n = Math.min(b.length, 2048);
+            if (n === 0) return false;
+            let suspicious = 0;
+            for (let i = 0; i < n; i++) {
+                const c = b[i];
+                if (c === 0) return false;
+                if (c < 9 || (c > 13 && c < 32)) suspicious++;
+            }
+            return suspicious / n < 0.08;
+        }
+
+        // ---------- main ----------
+        async function analyze(file) {
+            objectUrls.forEach(URL.revokeObjectURL);
+            objectUrls = [];
+            results.innerHTML = '';
+            report = {};
+            toolbar.style.display = 'flex';
+            dropzone.textContent = 'Analysing…';
+
+            try {
+                const headBuf = await file.slice(0, HEAD_BYTES).arrayBuffer();
+                const head = new Uint8Array(headBuf);
+
+                let detected = detectType(head);
+                // An <?xml…>-prefixed SVG is detected as generic XML; reclassify if it has an <svg> root.
+                if (detected && detected.mime === 'application/xml') {
+                    const peek = new TextDecoder().decode(head.slice(0, 2000)).toLowerCase();
+                    if (peek.includes('<svg')) detected = { description: 'SVG image', mime: 'image/svg+xml', category: 'image' };
+                }
+                const ext = (file.name.includes('.') ? file.name.split('.').pop() : '').toLowerCase();
+
+                // Refine ZIP-based formats by extension
+                let typeDesc = detected ? detected.description : null;
+                if (detected && detected.mime === 'application/zip' && EXT_OFFICE[ext]) {
+                    typeDesc = EXT_OFFICE[ext] + ' (ZIP-based)';
+                }
+
+                const mime = (detected && detected.mime) || file.type || '';
+                let category = detected ? detected.category :
+                    (file.type ? file.type.split('/')[0] : null);
+                if (!category || !CATEGORY_COLORS[category]) {
+                    category = isProbablyText(head) ? 'text' : 'other';
+                }
+
+                renderGeneral(file, head, detected, typeDesc, mime, category, ext);
+
+                const isImage = category === 'image' || (mime && mime.startsWith('image/'));
+                const isMedia = category === 'audio' || category === 'video' ||
+                    (mime && (mime.startsWith('audio/') || mime.startsWith('video/')));
+                const isText = category === 'text' || (mime && mime.startsWith('text/')) ||
+                    (!detected && isProbablyText(head));
+
+                if (isImage) await renderImage(file, headBuf, head, detected, mime);
+                if (isMedia) await renderMedia(file, category, mime);
+                if (mime === 'audio/mpeg' || ext === 'mp3') await renderId3(file, head);
+                if (isText && !isImage) await renderText(file, head);
+
+                renderHex(head);
+                renderHashes(file);
+
+                dropzone.textContent = 'Drop another file here, click to choose, or paste';
+            } catch (err) {
+                console.error(err);
+                dropzone.textContent = 'Could not read that file — try another.';
+                panel('Error', [['Message', String(err && err.message || err)]]);
+            }
+        }
+
+        function renderGeneral(file, head, detected, typeDesc, mime, category, ext) {
+            report.general = {
+                name: file.name, size: file.size, sizeReadable: fmtBytes(file.size),
+                browserMimeType: file.type || null, detectedType: typeDesc || null,
+                effectiveMimeType: mime || null, category, extension: ext || null,
+                lastModified: file.lastModified ? new Date(file.lastModified).toISOString() : null
+            };
+            const sigBytes = Array.from(head.slice(0, 16))
+                .map(x => x.toString(16).padStart(2, '0')).join(' ');
+            report.general.signatureHex = sigBytes;
+
+            const rows = [
+                ['Name', file.name],
+                ['Size', fmtBytes(file.size) + '  (' + file.size.toLocaleString() + ' bytes)'],
+                ['Detected type', typeDesc || (detected ? detected.description : (category === 'text' ? 'Plain text (no signature)' : 'Unknown / unrecognised'))],
+                ['Browser MIME', file.type || '(not provided)'],
+                ['Effective MIME', mime || '—'],
+                ['Extension', ext ? '.' + ext : '(none)'],
+                ['Last modified', fmtDate(file.lastModified)],
+                ['Signature', sigBytes]
+            ];
+            panel('General', rows, {
+                badge: category,
+                badgeColor: CATEGORY_COLORS[category] || CATEGORY_COLORS.other
+            });
+        }
+
+        // ---------- image ----------
+        function loadImageMeta(file) {
+            return new Promise(res => {
+                const url = newObjectUrl(file);
+                const img = new Image();
+                img.onload = () => res({ w: img.naturalWidth, h: img.naturalHeight, url });
+                img.onerror = () => res({ w: 0, h: 0, url });
+                img.src = url;
+            });
+        }
+
+        // Encoded pixel dimensions straight from a JPEG's SOF marker. Unlike <img>.naturalWidth,
+        // this ignores EXIF orientation, so rotated photos report their true stored size.
+        function jpegDimensions(b) {
+            let off = 2;
+            while (off + 9 < b.length) {
+                if (b[off] !== 0xFF) { off++; continue; }
+                const marker = b[off + 1];
+                if (marker === 0xD8 || marker === 0xD9 || (marker >= 0xD0 && marker <= 0xD7)) { off += 2; continue; }
+                const len = (b[off + 2] << 8) | b[off + 3];
+                const isSOF = marker >= 0xC0 && marker <= 0xCF && marker !== 0xC4 && marker !== 0xC8 && marker !== 0xCC;
+                if (isSOF) return { w: (b[off + 7] << 8) | b[off + 8], h: (b[off + 5] << 8) | b[off + 6] };
+                if (len <= 0) break;
+                off += 2 + len;
+            }
+            return null;
+        }
+
+        async function renderImage(file, headBuf, head, detected, mime) {
+            const meta = await loadImageMeta(file);   // for the preview + fallback dimensions
+            const rows = [];
+            report.image = {};
+            const dm = detected ? detected.mime : mime;
+
+            // Prefer dimensions from the format header (orientation-independent); fall back to <img>.
+            let dim = null, png = null;
+            if (dm === 'image/jpeg') dim = jpegDimensions(head);
+            else if (dm === 'image/png') { png = parsePng(head); if (png) dim = { w: png.width, h: png.height }; }
+            else if (dm === 'image/gif') dim = { w: head[6] | (head[7] << 8), h: head[8] | (head[9] << 8) };
+            if ((!dim || !dim.w) && meta.w && meta.h) dim = { w: meta.w, h: meta.h };
+
+            if (dim && dim.w && dim.h) {
+                rows.push(['Dimensions', dim.w + ' × ' + dim.h + ' px']);
+                rows.push(['Megapixels', ((dim.w * dim.h) / 1e6).toFixed(2) + ' MP']);
+                rows.push(['Aspect ratio', aspectRatio(dim.w, dim.h)]);
+                report.image.width = dim.w;
+                report.image.height = dim.h;
+            }
+
+            if (png) {
+                rows.push(['Bit depth', png.bitDepth + ' bits/channel']);
+                rows.push(['Colour type', png.colorType]);
+                rows.push(['Interlaced', png.interlaced ? 'Yes (Adam7)' : 'No']);
+                report.image.bitDepth = png.bitDepth;
+                report.image.colorType = png.colorType;
+                if (png.text && png.text.length) png.text.forEach(([k, v]) => rows.push(['PNG: ' + k, v]));
+            }
+            if (dm === 'image/gif') {
+                const version = String.fromCharCode(...head.slice(0, 6));
+                rows.push(['Version', version]);
+                rows.push(['Colour depth', (((head[10] & 0x07) + 1)) + '-bit palette']);
+                report.image.version = version;
+            }
+            if (dm === 'image/svg+xml') {
+                const svg = await parseSvg(file);
+                if (svg) {
+                    if (svg.width) rows.push(['SVG width', svg.width]);
+                    if (svg.height) rows.push(['SVG height', svg.height]);
+                    if (svg.viewBox) rows.push(['viewBox', svg.viewBox]);
+                    rows.push(['Elements', svg.elements + ' nodes']);
+                    Object.assign(report.image, svg);
+                }
+            }
+
+            const prepend = document.createElement('img');
+            prepend.className = 'preview-img';
+            prepend.src = meta.url;
+            prepend.alt = 'preview';
+
+            panel('Image', rows.length ? rows : [['Info', 'No further details available']], { prepend });
+
+            // EXIF for JPEG / TIFF
+            if (dm === 'image/jpeg' || dm === 'image/tiff') renderExif(headBuf, dm);
+        }
+
+        function aspectRatio(w, h) {
+            const g = (a, b) => b ? g(b, a % b) : a;
+            const d = g(w, h) || 1;
+            return (w / d) + ':' + (h / d) + '  (' + (w / h).toFixed(3) + ')';
+        }
+
+        function parsePng(b) {
+            try {
+                const view = new DataView(b.buffer, b.byteOffset, b.byteLength);
+                const width = view.getUint32(16);
+                const height = view.getUint32(20);
+                const bitDepth = view.getUint8(24);
+                const ct = view.getUint8(25);
+                const interlaced = view.getUint8(28) === 1;
+                const colorTypes = {
+                    0: 'Grayscale', 2: 'Truecolour (RGB)', 3: 'Indexed (palette)',
+                    4: 'Grayscale + alpha', 6: 'Truecolour + alpha (RGBA)'
+                };
+                // scan tEXt / iTXt chunks for embedded text
+                const text = [];
+                let off = 8;
+                while (off + 8 < b.length && text.length < 12) {
+                    const len = view.getUint32(off);
+                    const type = String.fromCharCode(b[off + 4], b[off + 5], b[off + 6], b[off + 7]);
+                    if (type === 'IEND') break;
+                    if ((type === 'tEXt' || type === 'iTXt') && off + 8 + len <= b.length) {
+                        const chunk = b.slice(off + 8, off + 8 + len);
+                        const nul = chunk.indexOf(0);
+                        if (nul > 0) {
+                            const key = String.fromCharCode(...chunk.slice(0, nul));
+                            let valStart = nul + 1;
+                            if (type === 'iTXt') {
+                                // skip compression flag/method + language + translated keyword
+                                valStart = nul + 3;
+                                let skips = 2;
+                                while (valStart < chunk.length && skips > 0) { if (chunk[valStart] === 0) skips--; valStart++; }
+                            }
+                            const val = new TextDecoder().decode(chunk.slice(valStart)).slice(0, 200);
+                            if (val.trim()) text.push([key, val.trim()]);
+                        }
+                    }
+                    off += 12 + len; // length + type + data + CRC
+                }
+                return { width, height, bitDepth, colorType: colorTypes[ct] || ('Unknown (' + ct + ')'), interlaced, text };
+            } catch { return null; }
+        }
+
+        function parseSvg(file) {
+            return new Promise(res => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const doc = new DOMParser().parseFromString(reader.result, 'image/svg+xml');
+                        const svg = doc.querySelector('svg');
+                        if (!svg) return res(null);
+                        res({
+                            width: svg.getAttribute('width') || null,
+                            height: svg.getAttribute('height') || null,
+                            viewBox: svg.getAttribute('viewBox') || null,
+                            elements: doc.getElementsByTagName('*').length
+                        });
+                    } catch { res(null); }
+                };
+                reader.onerror = () => res(null);
+                reader.readAsText(file.slice(0, 200000));
+            });
+        }
+
+        // ---------- EXIF ----------
+        const EXIF_TAGS = {
+            0x0100: 'ImageWidth', 0x0101: 'ImageHeight', 0x0102: 'BitsPerSample', 0x0103: 'Compression',
+            0x0106: 'PhotometricInterpretation', 0x010E: 'ImageDescription', 0x010F: 'Make', 0x0110: 'Model',
+            0x0112: 'Orientation', 0x0115: 'SamplesPerPixel', 0x011A: 'XResolution', 0x011B: 'YResolution',
+            0x0128: 'ResolutionUnit', 0x0131: 'Software', 0x0132: 'DateTime', 0x013B: 'Artist',
+            0x8298: 'Copyright', 0x829A: 'ExposureTime', 0x829D: 'FNumber', 0x8822: 'ExposureProgram',
+            0x8827: 'ISO', 0x9003: 'DateTimeOriginal', 0x9004: 'DateTimeDigitized', 0x9201: 'ShutterSpeedValue',
+            0x9202: 'ApertureValue', 0x9203: 'BrightnessValue', 0x9204: 'ExposureBias', 0x9205: 'MaxApertureValue',
+            0x9207: 'MeteringMode', 0x9208: 'LightSource', 0x9209: 'Flash', 0x920A: 'FocalLength',
+            0x9286: 'UserComment', 0xA001: 'ColorSpace', 0xA002: 'PixelXDimension', 0xA003: 'PixelYDimension',
+            0xA402: 'ExposureMode', 0xA403: 'WhiteBalance', 0xA404: 'DigitalZoomRatio',
+            0xA405: 'FocalLengthIn35mm', 0xA406: 'SceneCaptureType', 0xA408: 'Contrast',
+            0xA409: 'Saturation', 0xA40A: 'Sharpness', 0xA433: 'LensMake', 0xA434: 'LensModel', 0xA435: 'LensSerial'
+        };
+        const GPS_TAGS = {
+            0x0001: 'GPSLatitudeRef', 0x0002: 'GPSLatitude', 0x0003: 'GPSLongitudeRef', 0x0004: 'GPSLongitude',
+            0x0005: 'GPSAltitudeRef', 0x0006: 'GPSAltitude', 0x0007: 'GPSTimeStamp', 0x0009: 'GPSStatus',
+            0x000B: 'GPSDOP', 0x0011: 'GPSImgDirection', 0x0012: 'GPSMapDatum', 0x001D: 'GPSDateStamp'
+        };
+        const SKIP_TAGS = new Set([0x8769, 0x8825, 0xA005, 0x927C, 0x0111, 0x0117, 0x9000, 0xA000]);
+        const ENUMS = {
+            Orientation: { 1: 'Normal', 2: 'Mirror horizontal', 3: 'Rotate 180°', 4: 'Mirror vertical', 5: 'Mirror + rotate 270° CW', 6: 'Rotate 90° CW', 7: 'Mirror + rotate 90° CW', 8: 'Rotate 270° CW' },
+            ResolutionUnit: { 1: 'None', 2: 'inches', 3: 'cm' },
+            ExposureProgram: { 0: 'Not defined', 1: 'Manual', 2: 'Program AE', 3: 'Aperture priority', 4: 'Shutter priority', 5: 'Creative', 6: 'Action', 7: 'Portrait', 8: 'Landscape' },
+            MeteringMode: { 0: 'Unknown', 1: 'Average', 2: 'Centre-weighted', 3: 'Spot', 4: 'Multi-spot', 5: 'Multi-segment', 6: 'Partial' },
+            Flash: { 0: 'No flash', 1: 'Fired', 5: 'Fired, no return', 7: 'Fired, return detected', 9: 'Fired, compulsory', 16: 'Off', 24: 'Auto, did not fire', 25: 'Auto, fired' },
+            ColorSpace: { 1: 'sRGB', 2: 'Adobe RGB', 0xFFFF: 'Uncalibrated' },
+            WhiteBalance: { 0: 'Auto', 1: 'Manual' },
+            ExposureMode: { 0: 'Auto', 1: 'Manual', 2: 'Auto bracket' },
+            SceneCaptureType: { 0: 'Standard', 1: 'Landscape', 2: 'Portrait', 3: 'Night' },
+            Contrast: { 0: 'Normal', 1: 'Soft', 2: 'Hard' },
+            Saturation: { 0: 'Normal', 1: 'Low', 2: 'High' },
+            Sharpness: { 0: 'Normal', 1: 'Soft', 2: 'Hard' }
+        };
+
+        function parseExif(buf, baseMime) {
+            const view = new DataView(buf);
+            let tiffStart;
+            if (baseMime === 'image/jpeg') {
+                if (view.getUint16(0) !== 0xFFD8) return null;
+                let offset = 2;
+                const len = view.byteLength;
+                while (offset + 4 < len) {
+                    const marker = view.getUint16(offset);
+                    if (marker === 0xFFE1) {
+                        if (view.getUint32(offset + 4) === 0x45786966) { tiffStart = offset + 10; break; }
+                    }
+                    if ((marker & 0xFF00) !== 0xFF00) break;
+                    if (marker === 0xFFDA || marker === 0xFFD9) break;
+                    if (marker >= 0xFFD0 && marker <= 0xFFD7) { offset += 2; continue; }
+                    offset += 2 + view.getUint16(offset + 2);
+                }
+                if (tiffStart === undefined) return null;
+            } else {
+                tiffStart = 0; // TIFF file
+            }
+
+            const little = view.getUint16(tiffStart) === 0x4949;
+            if (view.getUint16(tiffStart) !== 0x4949 && view.getUint16(tiffStart) !== 0x4D4D) return null;
+            const ifd0Off = view.getUint32(tiffStart + 4, little);
+
+            const TYPE_SIZE = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8 };
+            function readValue(entryOff) {
+                const type = view.getUint16(entryOff + 2, little);
+                const count = view.getUint32(entryOff + 4, little);
+                const size = TYPE_SIZE[type] || 1;
+                let valOff = entryOff + 8;
+                if (size * count > 4) valOff = tiffStart + view.getUint32(entryOff + 8, little);
+                if (valOff < 0 || valOff > view.byteLength) return null;
+                if (type === 2) {
+                    let s = '';
+                    for (let i = 0; i < count && valOff + i < view.byteLength; i++) {
+                        const c = view.getUint8(valOff + i);
+                        if (c === 0) break; s += String.fromCharCode(c);
+                    }
+                    return s.trim();
+                }
+                const rd = off => {
+                    switch (type) {
+                        case 3: return view.getUint16(off, little);
+                        case 4: return view.getUint32(off, little);
+                        case 5: { const d = view.getUint32(off + 4, little); return d ? view.getUint32(off, little) / d : 0; }
+                        case 6: return view.getInt8(off);
+                        case 8: return view.getInt16(off, little);
+                        case 9: return view.getInt32(off, little);
+                        case 10: { const d = view.getInt32(off + 4, little); return d ? view.getInt32(off, little) / d : 0; }
+                        default: return view.getUint8(off);
+                    }
+                };
+                const arr = [];
+                for (let i = 0; i < count; i++) arr.push(rd(valOff + i * size));
+                return count === 1 ? arr[0] : arr;
+            }
+            function readIFD(ifdOff) {
+                const out = {};
+                if (ifdOff + 2 > view.byteLength) return out;
+                const n = view.getUint16(ifdOff, little);
+                for (let i = 0; i < n; i++) {
+                    const e = ifdOff + 2 + i * 12;
+                    if (e + 12 > view.byteLength) break;
+                    out[view.getUint16(e, little)] = readValue(e);
+                }
+                return out;
+            }
+
+            const ifd0 = readIFD(tiffStart + ifd0Off);
+            const exif = ifd0[0x8769] != null ? readIFD(tiffStart + ifd0[0x8769]) : {};
+            const gps = ifd0[0x8825] != null ? readIFD(tiffStart + ifd0[0x8825]) : {};
+            return { ifd0, exif, gps };
+        }
+
+        function formatExifValue(name, val) {
+            if (val == null) return null;
+            if (name in ENUMS && ENUMS[name][val] !== undefined) return ENUMS[name][val];
+            switch (name) {
+                case 'ExposureTime': return val < 1 ? '1/' + Math.round(1 / val) + ' s' : val + ' s';
+                case 'FNumber': case 'MaxApertureValue': return 'f/' + (+val).toFixed(1);
+                case 'ApertureValue': return 'f/' + Math.pow(2, val / 2).toFixed(1);
+                case 'FocalLength': return (+val).toFixed(1) + ' mm';
+                case 'FocalLengthIn35mm': return val + ' mm (35mm equiv.)';
+                case 'ISO': return 'ISO ' + val;
+                case 'ExposureBias': return (val > 0 ? '+' : '') + (+val).toFixed(2) + ' EV';
+                case 'ShutterSpeedValue': { const t = Math.pow(2, -val); return t < 1 ? '1/' + Math.round(1 / t) + ' s' : t.toFixed(1) + ' s'; }
+                case 'XResolution': case 'YResolution': return (+val).toFixed(0) + ' dpi';
+                case 'DigitalZoomRatio': return (+val).toFixed(2) + '×';
+            }
+            if (Array.isArray(val)) return val.map(v => typeof v === 'number' ? +v.toFixed(4) : v).join(', ');
+            return val;
+        }
+
+        function renderExif(buf, mime) {
+            let parsed = null;
+            try { parsed = parseExif(buf, mime); } catch (e) { console.warn('EXIF parse failed', e); }
+            if (!parsed) return;
+
+            const merged = Object.assign({}, parsed.ifd0, parsed.exif);
+            const rows = [];
+            report.exif = {};
+            const order = [0x010F, 0x0110, 0xA434, 0x0132, 0x9003, 0x829A, 0x829D, 0x8827, 0x920A, 0xA405, 0x9209, 0x0112, 0x0131];
+            const seen = new Set();
+            const push = tag => {
+                if (!(tag in merged) || seen.has(tag) || SKIP_TAGS.has(tag)) return;
+                const name = EXIF_TAGS[tag];
+                if (!name) return;
+                const v = formatExifValue(name, merged[tag]);
+                if (v === null || v === '') return;
+                rows.push([name, v]);
+                report.exif[name] = merged[tag];
+                seen.add(tag);
+            };
+            order.forEach(push);
+            Object.keys(merged).map(Number).forEach(push);
+
+            if (rows.length) panel('EXIF', rows);
+
+            // GPS
+            const g = parsed.gps;
+            if (g && (g[0x0002] || g[0x0004])) {
+                const lat = gpsDecimal(g[0x0002], g[0x0001]);
+                const lon = gpsDecimal(g[0x0004], g[0x0003]);
+                const grows = [];
+                report.gps = {};
+                if (lat != null && lon != null) {
+                    grows.push(['Latitude', Math.abs(lat).toFixed(6) + '° ' + (g[0x0001] || (lat >= 0 ? 'N' : 'S'))]);
+                    grows.push(['Longitude', Math.abs(lon).toFixed(6) + '° ' + (g[0x0003] || (lon >= 0 ? 'E' : 'W'))]);
+                    grows.push(['Decimal', lat.toFixed(6) + ', ' + lon.toFixed(6)]);
+                    report.gps.latitude = lat; report.gps.longitude = lon;
+                }
+                if (g[0x0006] != null) {
+                    const alt = (g[0x0005] === 1 ? -g[0x0006] : g[0x0006]);
+                    grows.push(['Altitude', alt.toFixed(1) + ' m']);
+                    report.gps.altitude = alt;
+                }
+                if (Array.isArray(g[0x0007])) {
+                    const ts = g[0x0007].map(x => String(Math.round(x)).padStart(2, '0')).join(':');
+                    grows.push(['GPS time (UTC)', ts]);
+                    if (g[0x001D]) grows.push(['GPS date', g[0x001D]]);
+                }
+                if (g[0x0011] != null) grows.push(['Direction', (+g[0x0011]).toFixed(1) + '°']);
+
+                let append = null;
+                if (lat != null && lon != null) {
+                    const a = document.createElement('a');
+                    a.className = 'map-link';
+                    a.href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}`;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.textContent = '📍 View location on OpenStreetMap';
+                    append = document.createElement('div');
+                    append.appendChild(a);
+                    const note = document.createElement('div');
+                    note.className = 'note';
+                    note.textContent = 'This photo embeds the exact coordinates where it was taken.';
+                    append.appendChild(note);
+                }
+                panel('GPS Location', grows, { append, badge: 'geotagged', badgeColor: '#c0392b' });
+            }
+        }
+
+        function gpsDecimal(triplet, ref) {
+            if (!Array.isArray(triplet) || triplet.length < 3) return null;
+            let dec = triplet[0] + triplet[1] / 60 + triplet[2] / 3600;
+            if (ref === 'S' || ref === 'W') dec = -dec;
+            return dec;
+        }
+
+        // ---------- audio / video ----------
+        function renderMedia(file, category, mime) {
+            return new Promise(res => {
+                const isVideo = category === 'video' || (mime && mime.startsWith('video/'));
+                const el = document.createElement(isVideo ? 'video' : 'audio');
+                const url = newObjectUrl(file);
+                let done = false;
+                const finish = () => {
+                    if (done) return; done = true;
+                    const rows = [];
+                    report.media = {};
+                    if (isFinite(el.duration) && el.duration > 0) {
+                        rows.push(['Duration', fmtDuration(el.duration)]);
+                        report.media.durationSeconds = +el.duration.toFixed(3);
+                    }
+                    if (isVideo && el.videoWidth) {
+                        rows.push(['Dimensions', el.videoWidth + ' × ' + el.videoHeight + ' px']);
+                        rows.push(['Aspect ratio', aspectRatio(el.videoWidth, el.videoHeight)]);
+                        report.media.width = el.videoWidth;
+                        report.media.height = el.videoHeight;
+                    }
+                    if (el.duration > 0 && file.size) {
+                        const kbps = (file.size * 8 / el.duration / 1000);
+                        rows.push(['Avg. bitrate', kbps.toFixed(0) + ' kbps']);
+                        report.media.avgBitrateKbps = +kbps.toFixed(0);
+                    }
+                    panel(isVideo ? 'Video' : 'Audio', rows.length ? rows : [['Info', 'Metadata not available (codec may be unsupported)']]);
+                    res();
+                };
+                el.preload = 'metadata';
+                el.onloadedmetadata = finish;
+                el.onerror = () => { finish(); };
+                setTimeout(finish, 4000);
+                el.src = url;
+            });
+        }
+
+        // ---------- ID3 (MP3) ----------
+        async function renderId3(file, head) {
+            let tags = parseId3v2(head);
+            if (!tags || Object.keys(tags).length === 0) {
+                // try ID3v1 in last 128 bytes
+                if (file.size > 128) {
+                    const tail = new Uint8Array(await file.slice(file.size - 128).arrayBuffer());
+                    tags = parseId3v1(tail);
+                }
+            }
+            if (!tags || Object.keys(tags).length === 0) return;
+            report.id3 = tags;
+            const labels = { title: 'Title', artist: 'Artist', album: 'Album', year: 'Year', track: 'Track', genre: 'Genre', albumArtist: 'Album artist', comment: 'Comment' };
+            const rows = Object.keys(labels).filter(k => tags[k]).map(k => [labels[k], tags[k]]);
+            if (rows.length) panel('ID3 Tags', rows, { badge: tags._version, badgeColor: '#9b59b6' });
+        }
+
+        function parseId3v2(b) {
+            if (!(b[0] === 0x49 && b[1] === 0x44 && b[2] === 0x33)) return null; // 'ID3'
+            const major = b[3];
+            const size = (b[6] << 21) | (b[7] << 14) | (b[8] << 7) | b[9];
+            const end = Math.min(10 + size, b.length);
+            const out = { _version: 'ID3v2.' + major };
+            const map3 = { TIT2: 'title', TPE1: 'artist', TALB: 'album', TYER: 'year', TDRC: 'year', TRCK: 'track', TCON: 'genre', TPE2: 'albumArtist', COMM: 'comment' };
+            const map2 = { TT2: 'title', TP1: 'artist', TAL: 'album', TYE: 'year', TRK: 'track', TCO: 'genre', COM: 'comment' };
+            const idLen = major === 2 ? 3 : 4;
+            const sizeLen = major === 2 ? 3 : 4;
+            let off = 10;
+            while (off + idLen + sizeLen < end) {
+                const id = String.fromCharCode(...b.slice(off, off + idLen));
+                if (!/^[A-Z0-9]+$/.test(id)) break;
+                let fsize;
+                if (major === 4) fsize = (b[off + 4] << 21) | (b[off + 5] << 14) | (b[off + 6] << 7) | b[off + 7];
+                else if (major === 3) fsize = (b[off + 4] << 24) | (b[off + 5] << 16) | (b[off + 6] << 8) | b[off + 7];
+                else fsize = (b[off + 4] << 16) | (b[off + 5] << 8) | b[off + 6];
+                const headerLen = idLen + sizeLen + (major === 2 ? 0 : 2);
+                const dataStart = off + headerLen;
+                if (fsize <= 0 || dataStart + fsize > b.length) break;
+                const key = (major === 2 ? map2 : map3)[id];
+                if (key) {
+                    const data = b.slice(dataStart, dataStart + fsize);
+                    let val;
+                    if (key === 'comment') {
+                        // COMM = encoding(1) + language(3) + description\0 + text
+                        const parts = id3Decode(data.slice(4), data[0]).split('\u0000').filter(Boolean);
+                        val = (parts[parts.length - 1] || '').trim();
+                    } else {
+                        val = decodeId3Text(data);
+                    }
+                    if (val) out[key] = key === 'genre' ? cleanGenre(val) : val;
+                }
+                off = dataStart + fsize;
+            }
+            return out;
+        }
+
+        function id3Decode(body, enc) {
+            try {
+                if (enc === 1) return new TextDecoder('utf-16').decode(body);    // UTF-16 with BOM
+                if (enc === 2) return new TextDecoder('utf-16be').decode(body);  // UTF-16BE
+                if (enc === 3) return new TextDecoder('utf-8').decode(body);
+                return new TextDecoder('iso-8859-1').decode(body);
+            } catch { return ''; }
+        }
+
+        function decodeId3Text(bytes) {
+            if (bytes.length === 0) return '';
+            const enc = bytes[0];
+            let body = bytes.slice(1);
+            try {
+                let s;
+                if (enc === 1 || enc === 2) s = new TextDecoder(enc === 1 ? 'utf-16' : 'utf-16be').decode(body);
+                else if (enc === 3) s = new TextDecoder('utf-8').decode(body);
+                else s = new TextDecoder('iso-8859-1').decode(body);
+                return s.replace(/\u0000+$/g, '').replace(/\u0000/g, ' / ').trim();
+            } catch { return ''; }
+        }
+
+        function cleanGenre(g) {
+            const m = g.match(/^\((\d+)\)$/);
+            return m ? (ID3_GENRES[+m[1]] || g) : g;
+        }
+        const ID3_GENRES = ['Blues', 'Classic Rock', 'Country', 'Dance', 'Disco', 'Funk', 'Grunge', 'Hip-Hop', 'Jazz', 'Metal', 'New Age', 'Oldies', 'Other', 'Pop', 'R&B', 'Rap', 'Reggae', 'Rock', 'Techno', 'Industrial', 'Alternative', 'Ska', 'Death Metal', 'Pranks', 'Soundtrack', 'Euro-Techno', 'Ambient', 'Trip-Hop', 'Vocal', 'Jazz+Funk', 'Fusion', 'Trance', 'Classical', 'Instrumental', 'Acid', 'House', 'Game', 'Sound Clip', 'Gospel', 'Noise', 'Alt. Rock', 'Bass', 'Soul', 'Punk', 'Space', 'Meditative', 'Instrumental Pop', 'Instrumental Rock', 'Ethnic', 'Gothic', 'Darkwave', 'Techno-Industrial', 'Electronic', 'Pop-Folk', 'Eurodance', 'Dream', 'Southern Rock', 'Comedy', 'Cult', 'Gangsta', 'Top 40', 'Christian Rap', 'Pop/Funk', 'Jungle', 'Native American', 'Cabaret', 'New Wave', 'Psychedelic', 'Rave', 'Showtunes', 'Trailer', 'Lo-Fi', 'Tribal', 'Acid Punk', 'Acid Jazz', 'Polka', 'Retro', 'Musical', 'Rock & Roll', 'Hard Rock'];
+
+        function parseId3v1(b) {
+            if (!(b[0] === 0x54 && b[1] === 0x41 && b[2] === 0x47)) return null; // 'TAG'
+            const dec = new TextDecoder('iso-8859-1');
+            const str = (s, e) => dec.decode(b.slice(s, e)).replace(/\u0000.*$/, '').trim();
+            const out = { _version: 'ID3v1' };
+            const title = str(3, 33), artist = str(33, 63), album = str(63, 93), year = str(93, 97);
+            if (title) out.title = title;
+            if (artist) out.artist = artist;
+            if (album) out.album = album;
+            if (year) out.year = year;
+            if (b[127] < ID3_GENRES.length) out.genre = ID3_GENRES[b[127]];
+            return out;
+        }
+
+        // ---------- text ----------
+        async function renderText(file, head) {
+            let bytes = head, truncated = file.size > HEAD_BYTES;
+            if (file.size <= FULL_TEXT_LIMIT) {
+                bytes = new Uint8Array(await file.arrayBuffer());
+                truncated = false;
+            }
+            let encoding = 'UTF-8 (assumed)';
+            let decoder = 'utf-8';
+            if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) encoding = 'UTF-8 with BOM';
+            else if (bytes[0] === 0xFF && bytes[1] === 0xFE) { encoding = 'UTF-16 LE'; decoder = 'utf-16le'; }
+            else if (bytes[0] === 0xFE && bytes[1] === 0xFF) { encoding = 'UTF-16 BE'; decoder = 'utf-16be'; }
+
+            let str;
+            try { str = new TextDecoder(decoder, { fatal: false }).decode(bytes); } catch { str = new TextDecoder().decode(bytes); }
+            str = str.replace(/^﻿/, '');
+
+            const crlf = (str.match(/\r\n/g) || []).length;
+            const loneLf = (str.match(/(?<!\r)\n/g) || []).length;
+            const lineEnding = crlf && !loneLf ? 'CRLF (Windows)' : (loneLf && !crlf ? 'LF (Unix)' : (crlf && loneLf ? 'Mixed CRLF/LF' : 'None'));
+            const lines = str.split(/\r\n|\r|\n/).length;
+            const words = (str.match(/\S+/g) || []).length;
+
+            report.text = { encoding, characters: str.length, words, lines, lineEnding, truncated };
+            const rows = [
+                ['Encoding', encoding],
+                ['Characters', str.length.toLocaleString() + (truncated ? ' (first 256 KB)' : '')],
+                ['Words', words.toLocaleString()],
+                ['Lines', lines.toLocaleString()],
+                ['Line endings', lineEnding]
+            ];
+            const pre = document.createElement('pre');
+            pre.className = 'text-preview';
+            pre.textContent = str.slice(0, 3000) + (str.length > 3000 ? '\n…' : '');
+            panel('Text', rows, { append: pre });
+        }
+
+        // ---------- hex dump ----------
+        function renderHex(b) {
+            const len = Math.min(b.length, 512);
+            let out = '';
+            for (let i = 0; i < len; i += 16) {
+                let hex = '', asc = '';
+                for (let j = 0; j < 16; j++) {
+                    if (i + j < len) {
+                        const v = b[i + j];
+                        hex += v.toString(16).padStart(2, '0') + ' ';
+                        asc += (v >= 32 && v < 127) ? String.fromCharCode(v) : '.';
+                    } else hex += '   ';
+                    if (j === 7) hex += ' ';
+                }
+                out += i.toString(16).padStart(8, '0') + '  ' + hex + ' ' + asc + '\n';
+            }
+            const pre = document.createElement('pre');
+            pre.className = 'hex';
+            pre.textContent = out;
+            panel('Hex Dump (first ' + len + ' bytes)', null, { append: pre });
+        }
+
+        // ---------- hashes ----------
+        function renderHashes(file) {
+            report.hashes = {};
+            const grid = document.createElement('div');
+            grid.className = 'kv';
+            const p = panel('Hashes', null, { append: grid });
+
+            const compute = async () => {
+                grid.innerHTML = '';
+                const k = document.createElement('div'); k.className = 'k'; k.textContent = 'Status';
+                const v = document.createElement('div'); v.className = 'v'; v.textContent = 'Computing…';
+                grid.append(k, v);
+                try {
+                    const buf = await file.arrayBuffer();
+                    const algos = [['SHA-256', 'SHA-256'], ['SHA-1', 'SHA-1']];
+                    grid.innerHTML = '';
+                    for (const [label, algo] of algos) {
+                        const digest = await crypto.subtle.digest(algo, buf);
+                        const hex = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, '0')).join('');
+                        report.hashes[label] = hex;
+                        const kk = document.createElement('div'); kk.className = 'k'; kk.textContent = label;
+                        const vv = document.createElement('div'); vv.className = 'v'; vv.textContent = hex;
+                        grid.append(kk, vv);
+                    }
+                } catch (e) {
+                    grid.innerHTML = '';
+                    const kk = document.createElement('div'); kk.className = 'k'; kk.textContent = 'Error';
+                    const vv = document.createElement('div'); vv.className = 'v'; vv.textContent = String(e.message || e);
+                    grid.append(kk, vv);
+                }
+            };
+
+            if (file.size <= AUTO_HASH_LIMIT) {
+                compute();
+            } else {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.textContent = 'Compute SHA-256 / SHA-1';
+                btn.onclick = () => { btn.remove(); compute(); };
+                p.appendChild(btn);
+                const note = document.createElement('div');
+                note.className = 'note';
+                note.textContent = 'File is larger than 25 MB — hashing is on demand to keep things responsive.';
+                p.appendChild(note);
+            }
+        }
+    </script>
+</body>
+</html>
