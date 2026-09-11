@@ -26,7 +26,7 @@ tools/
 
 - Write recipe pages and their index in European Portuguese, using `lang="pt-PT"`.
 - Store each recipe in `receitas/` with a descriptive, lowercase, hyphenated HTML filename, without accents. Add it to `receitas/index.html`.
-- Include a recipe title, author attribution when known, ingredients with quantities, ordered preparation steps, and a link to the original source.
+- Include a recipe title, author attribution when known, ingredients with quantities, ordered preparation steps, and a link to the original source when available. For recipes supplied as images or documents without a URL, identify that source without inventing a link or author.
 - Verify ingredients, quantities and preparation against the source. Only include servings, timings or other factual details when the source provides them; do not invent missing information.
 - Use your own wording for preparation instructions and summaries while preserving the recipe's facts.
 - Keep the full recipe readable without JavaScript, external assets or a network connection. Use semantic lists and a layout suitable for consulting while cooking on a phone.
