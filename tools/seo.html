@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Inspect a page's SEO metadata, preview shared links, and explore its JSON-LD structured data.">
+    <title>SEO Inspector</title>
+    <style>
+        :root { color-scheme: dark; --bg: #1a1a1a; --panel: #232323; --border: #3b3b3b; --muted: #b0b0b0; --accent: #9fc4ff; --green: #a8dbbb; --amber: #f0cc8a; --red: #ffaaa4; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.55; }
+        main { max-width: 1160px; margin: auto; padding: 42px 28px 64px; }
+        h1, h2, h3, p { margin: 0; }
+        h1 { font-size: 30px; letter-spacing: -1px; line-height: 1.2; }
+        h2 { font-size: 19px; letter-spacing: -.3px; }
+        h3 { font-size: 14px; font-weight: 600; }
+        header { display: flex; gap: 16px; align-items: center; margin-bottom: 28px; }
+        .logo { width: 46px; height: 46px; display: grid; place-items: center; flex: none; background: #2a3545; color: var(--accent); border: 1px solid #3a4b65; border-radius: 12px; }
+        .subtitle { color: var(--muted); margin-top: 5px; }
+        .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+        .input-panel { margin-bottom: 14px; }
+        .input-modes { display: flex; gap: 8px; margin-bottom: 22px; }
+        button, input, textarea, select { font: inherit; }
+        button { color: #fff; background: #303030; border: 1px solid #505050; border-radius: 7px; padding: 9px 15px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #3b3b3b; }
+        button:disabled { cursor: wait; opacity: .55; }
+        button.primary { background: #a9caff; border-color: #a9caff; color: #152139; }
+        button.primary:hover { background: #c1d8ff; }
+        .input-modes button { background: transparent; border-color: transparent; color: var(--muted); padding: 7px 13px; }
+        .input-modes button[aria-pressed="true"] { background: #343434; color: #fff; border-color: #484848; }
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 7px; }
+        input[type="text"], textarea, select { background: #191919; color: #fff; border: 1px solid #555; border-radius: 7px; padding: 11px 13px; width: 100%; min-width: 0; }
+        input::placeholder, textarea::placeholder { color: #939393; }
+        textarea { display: block; resize: vertical; min-height: 170px; font-family: ui-monospace, monospace; font-size: 13px; }
+        .url-row { display: flex; gap: 10px; }
+        .url-row input { flex: 1; }
+        .options { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+        .options label { margin: 0; color: var(--muted); font-weight: 400; }
+        .options select { width: auto; max-width: 100%; padding: 6px 10px; font-size: 13px; }
+        .note { font-size: 12px; color: var(--muted); line-height: 1.6; }
+        .input-panel .note { margin-top: 12px; max-width: 850px; }
+        #paste-input label:not(:first-child) { margin-top: 16px; }
+        .file-label { display: inline-block; color: var(--muted); font-size: 13px; }
+        input[type="file"] { display: block; max-width: 100%; margin-top: 5px; font-size: 12px; }
+        #status { min-height: 27px; font-size: 13px; color: var(--muted); padding: 0 2px; overflow-wrap: anywhere; }
+        #status.error { color: var(--red); }
+        #empty-state { margin-top: 38px; }
+        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; padding: 24px 4px; border-top: 1px solid var(--border); }
+        .features .number { font: 12px ui-monospace, monospace; color: var(--accent); margin-bottom: 12px; }
+        .features h2 { font-size: 15px; margin-bottom: 6px; }
+        .features p { font-size: 13px; color: var(--muted); }
+        #results { margin-top: 20px; min-width: 0; }
+        .report-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 18px; }
+        .report-heading > div { min-width: 0; }
+        #report-title { overflow-wrap: anywhere; }
+        #report-source { margin-top: 5px; }
+        #export { flex-shrink: 0; font-size: 12px; }
+        .stats { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+        .badge { border-radius: 5px; padding: 4px 9px; background: #303030; color: #ddd; font-size: 12px; display: inline-block; }
+        .badge.good { background: #26382e; color: var(--green); }
+        .badge.warn { background: #3d3424; color: var(--amber); }
+        .badge.error { background: #432b2a; color: var(--red); }
+        .section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 28px 0 12px; }
+        .section-title button { font-size: 12px; }
+        .previews { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+        .preview-section { min-width: 0; }
+        .preview-label { color: var(--muted); font-size: 12px; margin-bottom: 9px; display: flex; gap: 8px; justify-content: space-between; }
+        .preview-label span { color: #888; }
+        .share-card { background: #252525; border: 1px solid #454545; border-radius: 9px; overflow: hidden; }
+        .card-image { aspect-ratio: 1.91; background: #2c2c2c; display: grid; place-items: center; overflow: hidden; color: #b3b3b3; font-size: 12px; text-align: center; padding: 0; }
+        .card-image span { padding: 14px; }
+        .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 0; }
+        .card-body { padding: 13px 15px; min-width: 0; }
+        .card-domain { font-size: 11px; color: #aaa; overflow-wrap: anywhere; margin-bottom: 4px; }
+        .card-title { font-size: 15px; line-height: 1.4; font-weight: 600; margin-bottom: 4px; }
+        .card-description { color: #b5b5b5; font-size: 12px; }
+        .clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+        .summary-card { display: grid; grid-template-columns: 92px minmax(0, 1fr); }
+        .summary-card .card-image { aspect-ratio: auto; min-height: 115px; }
+        .summary-card .card-description { display: none; }
+        .search-card { padding: 16px; background: #202124; border-color: #454545; }
+        .search-card .card-domain { color: #bdc1c6; font-size: 12px; }
+        .search-card .card-title { color: #a8c7fa; font-size: 19px; font-weight: 400; margin-top: 12px; }
+        .search-card .card-description { color: #bdc1c6; font-size: 13px; -webkit-line-clamp: 3; }
+        .sources { margin-top: 9px; font-size: 11px; line-height: 1.6; color: #aaa; overflow-wrap: anywhere; }
+        .checks { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; }
+        .checks li { padding: 8px 0; display: flex; gap: 10px; border-bottom: 1px solid #353535; font-size: 13px; }
+        .check-symbol { width: 19px; flex: none; text-align: center; font-weight: 700; }
+        .check-symbol.good { color: var(--green); }
+        .check-symbol.warn { color: var(--amber); }
+        .check-symbol.error { color: var(--red); }
+        details.panel { margin-top: 16px; }
+        summary { cursor: pointer; font-weight: 600; }
+        summary .badge { margin-left: 7px; vertical-align: middle; font-weight: 400; }
+        details[open] > summary { margin-bottom: 16px; }
+        .table-wrap { overflow: auto; max-height: 550px; margin-top: 12px; }
+        table { border-collapse: collapse; width: 100%; font-size: 13px; table-layout: fixed; }
+        th { text-align: left; color: var(--muted); font-weight: 400; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+        th, td { border-bottom: 1px solid #393939; padding: 9px 12px 9px 0; vertical-align: top; overflow-wrap: anywhere; }
+        th:first-child { width: 29%; }
+        td:first-child { color: #c2d7f7; font-family: ui-monospace, monospace; font-size: 12px; }
+        td .note { display: block; margin-top: 3px; }
+        a { color: var(--accent); }
+        pre { background: #191919; border: 1px solid #393939; border-radius: 8px; padding: 15px; font: 12px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; overflow: auto; max-height: 450px; color: #d5e3f4; }
+        .json-block { margin-top: 20px; }
+        .json-heading { display: flex; gap: 10px; justify-content: space-between; align-items: center; }
+        .json-heading button { font-size: 11px; padding: 5px 10px; }
+        .json-error { color: var(--red); font-size: 12px; margin-top: 8px; }
+        .outline { list-style: none; padding: 0; margin: 16px 0 0; font-size: 13px; }
+        .outline li { border-top: 1px solid #393939; padding: 8px 0; overflow-wrap: anywhere; }
+        .outline code { color: var(--accent); margin-right: 12px; }
+        .footnote { margin-top: 20px; }
+        [hidden] { display: none !important; }
+        @media (max-width: 860px) { .previews { grid-template-columns: repeat(2, minmax(0, 1fr)); } .preview-section:last-child { grid-column: 1 / -1; max-width: 620px; } }
+        @media (max-width: 600px) {
+            main { padding: 25px 16px 40px; } h1 { font-size: 26px; } header { gap: 12px; } .subtitle { font-size: 13px; }
+            .panel { padding: 16px; } .url-row { flex-wrap: wrap; } .url-row input { flex-basis: 100%; }
+            .url-row .primary { flex: 1; } .previews, .checks, .features { grid-template-columns: 1fr; }
+            .preview-section:last-child { grid-column: auto; } .features { gap: 24px; } .features .number { margin-bottom: 5px; }
+            .report-heading { flex-wrap: wrap; } .section-title { align-items: flex-start; } th:first-child { width: 36%; }
+            .options { gap: 10px; } .options select { width: 100%; } .input-modes { margin-bottom: 18px; }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <header>
+        <div class="logo" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5M8 8h5M8 11h3"/></svg></div>
+        <div><h1>SEO Inspector</h1><p class="subtitle">See how a page appears when it’s shared. Explore the metadata behind it.</p></div>
+    </header>
+    <section class="panel input-panel" aria-label="Inspect a page">
+        <div class="input-modes" role="group" aria-label="Input method">
+            <button type="button" id="url-mode" aria-pressed="true" aria-controls="url-input">Website URL</button>
+            <button type="button" id="paste-mode" aria-pressed="false" aria-controls="paste-input">Paste HTML</button>
+        </div>
+        <form id="url-input">
+            <label for="page-url">Page URL</label>
+            <div class="url-row">
+                <input id="page-url" type="text" inputmode="url" placeholder="https://example.com/article" autocomplete="off" spellcheck="false" required>
+                <button class="primary" id="inspect-url" type="submit">Inspect page <span aria-hidden="true">↗</span></button>
+                <button type="button" id="cancel" hidden>Cancel</button>
+            </div>
+            <div class="options">
+                <label for="fetch-mode">Fetch method</label>
+                <select id="fetch-mode" aria-describedby="fetch-note">
+                    <option value="auto">Automatic · public proxy fallback</option>
+                    <option value="direct">Direct · browser access only</option>
+                    <option value="proxy">Source HTML · Jina Reader</option>
+                </select>
+            </div>
+            <p class="note" id="fetch-note">Tries direct access, then sends the public URL to Jina Reader if needed. The service may cache pages or limit requests. Use direct access or paste HTML for private content.</p>
+        </form>
+        <form id="paste-input" hidden>
+            <label for="base-url">Page URL <span class="note">— optional, used to resolve relative links and images</span></label>
+            <input id="base-url" type="text" inputmode="url" placeholder="https://example.com/article" autocomplete="off" spellcheck="false">
+            <label for="html-input">Page HTML</label>
+            <textarea id="html-input" placeholder="Paste the page source, including its &lt;head&gt;…" spellcheck="false" required></textarea>
+            <div class="options">
+                <button type="submit" class="primary">Inspect HTML</button>
+                <label class="file-label" for="html-file">Or open an HTML file<input type="file" id="html-file" accept=".html,.htm,text/html"></label>
+            </div>
+            <p class="note">HTML is parsed in your browser. Preview images load only when you choose to load them. For JavaScript-generated tags, copy the rendered HTML from your browser’s developer tools.</p>
+        </form>
+    </section>
+    <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
+    <noscript><p>This inspector needs JavaScript to fetch pages and read their metadata.</p></noscript>
+    <section id="empty-state" aria-label="What you can inspect">
+        <div class="features">
+            <div><p class="number">01 / PREVIEW</p><h2>Links, before you share them</h2><p>Open Graph and X cards, plus an illustrative search snippet with the source of each field.</p></div>
+            <div><p class="number">02 / INSPECT</p><h2>The details that matter</h2><p>Titles, descriptions, canonicals, robots directives, language alternatives, and every meta tag.</p></div>
+            <div><p class="number">03 / EXPLORE</p><h2>Structured data, unpacked</h2><p>Every JSON-LD block, formatted for reading, with detected types and individual syntax errors.</p></div>
+        </div>
+        <p class="note">Some sites block automated requests. If a URL cannot be fetched, paste its HTML to inspect it.</p>
+    </section>
+    <section id="results" aria-label="Inspection results" hidden>
+        <div class="report-heading"><div><h2 id="report-title"></h2><p class="note" id="report-source"></p></div><button type="button" id="export">Download report ↓</button></div>
+        <div id="stats" class="stats"></div>
+        <div class="section-title"><h2>Link &amp; search previews</h2><button type="button" id="load-images" hidden>Load preview images</button></div>
+        <div id="previews" class="previews"></div>
+        <p class="note footnote">Illustrative previews. Platforms can crop images, omit fields, use cached metadata, or choose different text. Image loading contacts the image host; a loaded image does not prove that a crawler can access it.</p>
+        <section class="panel" style="margin-top: 24px" aria-labelledby="checks-title"><h2 id="checks-title">Things to check</h2><p class="note">Checks of the supplied HTML, not an SEO score or proof of indexability.</p><ul id="checks" class="checks"></ul></section>
+        <details class="panel" open><summary>Page metadata</summary><div id="metadata"></div></details>
+        <details class="panel" open><summary>Open Graph &amp; X tags <span id="social-count" class="badge"></span></summary><p class="note">Original order is preserved. Repeated Open Graph properties can be intentional; previews use the first value.</p><div id="social-tags"></div></details>
+        <details class="panel" open><summary>JSON-LD structured data <span id="json-count" class="badge"></span></summary><p class="note">Checks JSON syntax only. Contexts are not fetched, and schema rules or rich-result eligibility are not validated. Microdata and RDFa are not expanded.</p><div id="json-ld"></div></details>
+        <details class="panel"><summary>Page outline <span id="heading-count" class="badge"></span></summary><div id="outline"></div></details>
+        <details class="panel"><summary>All meta &amp; link tags <span id="all-count" class="badge"></span></summary><div id="all-tags"></div></details>
+        <p class="note footnote" id="limitations"></p>
+    </section>
+</main>
+<script>
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const MAX_BYTES = 5 * 1024 * 1024;
+    let currentReport = null;
+    let activeRequest = null;
+    let runId = 0;
+
+    function element(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+    }
+
+    function status(message, error = false) {
+        $('status').textContent = message;
+        $('status').className = error ? 'error' : '';
+    }
+
+    function httpUrl(value, base) {
+        if (!value || !value.trim()) return '';
+        try {
+            const url = base ? new URL(value.trim(), base) : new URL(value.trim());
+            return /^https?:$/.test(url.protocol) && !url.username && !url.password ? url.href : '';
+        } catch { return ''; }
+    }
+
+    function inputUrl(value, optional = false) {
+        value = value.trim();
+        if (!value && optional) return '';
+        if (!value) throw new Error('Enter a page URL.');
+        if (!/^[a-z][a-z\d+.-]*:/i.test(value) || /^[^/\s:]+:\d+(?:[/?#]|$)/.test(value)) value = 'https://' + value.replace(/^\/\//, '');
+        const url = httpUrl(value);
+        if (!url) throw new Error('Enter a valid HTTP or HTTPS URL without embedded credentials.');
+        return url;
+    }
+
+    function publicUrl(value) {
+        const host = new URL(value).hostname.toLowerCase().replace(/\.$/, '');
+        if (!host.includes('.') || /\.(localhost|local|internal|test|invalid|lan|home\.arpa)$/.test(host)) return false;
+        if (/^(localhost|127\.|0\.|10\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host)) return false;
+        return true;
+    }
+
+    function setBusy(busy) {
+        $('inspect-url').disabled = busy;
+        $('cancel').hidden = !busy;
+        $('url-input').setAttribute('aria-busy', String(busy));
+    }
+
+    function stopRequest() {
+        runId++;
+        if (activeRequest) activeRequest.abort();
+        activeRequest = null;
+        setBusy(false);
+    }
+
+    function clearReport() {
+        currentReport = null;
+        $('results').hidden = true;
+        $('empty-state').hidden = false;
+        $('previews').replaceChildren();
+    }
+
+    function switchMode(mode) {
+        stopRequest();
+        $('url-input').hidden = mode !== 'url';
+        $('paste-input').hidden = mode !== 'paste';
+        $('url-mode').setAttribute('aria-pressed', String(mode === 'url'));
+        $('paste-mode').setAttribute('aria-pressed', String(mode === 'paste'));
+        if (mode === 'paste' && !$('base-url').value) $('base-url').value = $('page-url').value;
+        status('');
+    }
+    $('url-mode').addEventListener('click', () => switchMode('url'));
+    $('paste-mode').addEventListener('click', () => switchMode('paste'));
+    $('cancel').addEventListener('click', () => { stopRequest(); status('Inspection cancelled.'); });
+    $('fetch-mode').addEventListener('change', () => {
+        const notes = {
+            auto: 'Tries direct access, then sends the public URL to Jina Reader if needed. The service may cache pages or limit requests. Use direct access or paste HTML for private content.',
+            direct: 'Fetches from this browser without a proxy or cookies. The website must allow cross-origin access (CORS). If blocked, paste its HTML.',
+            proxy: 'Sends the public URL to Jina Reader to fetch source HTML without running JavaScript. The service may cache pages or limit requests. For JavaScript-generated tags, paste the rendered HTML.'
+        };
+        $('fetch-note').textContent = notes[$('fetch-mode').value];
+    });
+
+    async function readResponse(response) {
+        if (Number(response.headers.get('content-length')) > MAX_BYTES) throw new Error('Response exceeds the 5 MB limit.');
+        const reader = response.body.getReader();
+        const chunks = [];
+        let size = 0;
+        try {
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                size += value.byteLength;
+                if (size > MAX_BYTES) { await reader.cancel(); throw new Error('Response exceeds the 5 MB limit.'); }
+                chunks.push(value);
+            }
+        } finally { reader.releaseLock(); }
+        const bytes = new Uint8Array(size);
+        let offset = 0;
+        for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+        const charset = (response.headers.get('content-type') || '').match(/charset\s*=\s*["']?([^\s;"']+)/i);
+        try { return new TextDecoder(charset ? charset[1] : 'utf-8').decode(bytes); }
+        catch { return new TextDecoder().decode(bytes); }
+    }
+
+    async function fetchPage(url, proxy, signal) {
+        const controller = new AbortController();
+        const abort = () => controller.abort();
+        signal.addEventListener('abort', abort, { once: true });
+        if (signal.aborted) controller.abort();
+        const timer = setTimeout(abort, proxy ? 35000 : 10000);
+        try {
+            const headers = proxy ? { 'Accept': 'application/json', 'X-Respond-With': 'html', 'X-No-Cache': 'true', 'X-Engine': 'direct' } : {};
+            const response = await fetch(proxy ? 'https://r.jina.ai/' + url : url, {
+                headers, signal: controller.signal, credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store'
+            });
+            if (!response.ok) throw new Error(`${proxy ? 'Jina Reader' : 'Website'} returned HTTP ${response.status}.`);
+            const body = await readResponse(response);
+            if (proxy) {
+                let payload;
+                try { payload = JSON.parse(body); } catch { throw new Error('Jina Reader returned an unreadable response.'); }
+                const data = payload.data;
+                if (!data || typeof data.html !== 'string') throw new Error('Jina Reader did not return HTML. Try pasting the page source.');
+                const code = Number(data.httpStatus) || null;
+                if (code && (code < 200 || code >= 300)) throw new Error(`The fetched website returned HTTP ${code}. Paste its HTML to inspect this response.`);
+                return { html: data.html, url: httpUrl(data.url) || url, requestedUrl: url, method: 'Jina Reader · source HTML', httpStatus: code, proxy: true, robotsHeader: null };
+            }
+            const type = response.headers.get('content-type') || '';
+            if (type && !/text\/html|application\/xhtml\+xml/i.test(type)) throw new Error('This URL did not return an HTML page.');
+            return { html: body, url: response.url || url, requestedUrl: url, method: 'Direct · source HTML', httpStatus: response.status, proxy: false, robotsHeader: response.headers.get('x-robots-tag') };
+        } finally {
+            clearTimeout(timer);
+            signal.removeEventListener('abort', abort);
+        }
+    }
+
+    $('url-input').addEventListener('submit', async event => {
+        event.preventDefault();
+        let url;
+        try { url = inputUrl($('page-url').value); } catch (error) { status(error.message, true); return; }
+        stopRequest();
+        clearReport();
+        const id = runId;
+        const request = new AbortController();
+        activeRequest = request;
+        setBusy(true);
+        const mode = $('fetch-mode').value;
+        try {
+            let page;
+            if (mode === 'proxy') {
+                if (!publicUrl(url)) throw new Error('Use direct access or paste HTML for a local or private URL.');
+                status('Fetching source HTML through Jina Reader…');
+                page = await fetchPage(url, true, request.signal);
+            } else {
+                status('Fetching page HTML directly…');
+                try { page = await fetchPage(url, false, request.signal); }
+                catch (error) {
+                    if (request.signal.aborted || mode === 'direct') throw error;
+                    if (!publicUrl(url)) throw new Error('Direct access failed. Local or private URLs are not sent to the public proxy; paste the HTML instead.');
+                    status('Direct access unavailable. Fetching source HTML through Jina Reader…');
+                    page = await fetchPage(url, true, request.signal);
+                }
+            }
+            if (id !== runId) return;
+            inspect(page, true);
+        } catch (error) {
+            if (id !== runId) return;
+            const message = error.name === 'AbortError' ? 'The request timed out.' : error.message;
+            status(`${message} If the site blocks access, switch to Paste HTML.`, true);
+        } finally {
+            if (id === runId) { activeRequest = null; setBusy(false); }
+        }
+    });
+
+    $('paste-input').addEventListener('submit', event => {
+        event.preventDefault();
+        stopRequest();
+        clearReport();
+        try {
+            inspect({ html: $('html-input').value, url: inputUrl($('base-url').value, true), requestedUrl: '', method: 'Pasted HTML · parsed locally', httpStatus: null, proxy: false, robotsHeader: null }, false);
+        } catch (error) { status(error.message, true); }
+    });
+
+    $('html-file').addEventListener('change', async () => {
+        const file = $('html-file').files[0];
+        if (!file) return;
+        try {
+            if (file.size > MAX_BYTES) throw new Error('Choose an HTML file smaller than 5 MB.');
+            $('html-input').value = await file.text();
+            status(`Loaded ${file.name}. Add the page URL if needed, then inspect the HTML.`);
+        } catch (error) { status(error.message, true); }
+        $('html-file').value = '';
+    });
+
+    function parsePage(page) {
+        if (!page.html.trim()) throw new Error('The HTML is empty.');
+        if (new Blob([page.html]).size > MAX_BYTES) throw new Error('HTML exceeds the 5 MB limit.');
+        if (!/<[a-z!][\s\S]*>/i.test(page.html)) throw new Error('No HTML tags were found. Paste the page source, not just its text.');
+        // Keep the parsed document detached. Only extracted text is added to the UI.
+        const doc = new DOMParser().parseFromString(page.html, 'text/html');
+        const metas = Array.from(doc.querySelectorAll('meta')).map(node => ({
+            key: (node.getAttribute('property') || node.getAttribute('name') || node.getAttribute('http-equiv') || (node.hasAttribute('charset') ? 'charset' : '(unnamed)')).trim(),
+            value: node.getAttribute('content') ?? node.getAttribute('charset') ?? '',
+            attributes: Array.from(node.attributes).map(attribute => `${attribute.name}=${JSON.stringify(attribute.value)}`).join(' ')
+        }));
+        const get = key => metas.find(meta => meta.key.toLowerCase() === key)?.value.trim() || '';
+        const rawBase = doc.querySelector('base[href]')?.getAttribute('href') || '';
+        const base = httpUrl(rawBase, page.url) || page.url;
+        const links = Array.from(doc.querySelectorAll('link')).map(node => ({
+            rel: node.getAttribute('rel') || '', href: node.getAttribute('href') || '',
+            resolved: httpUrl(node.getAttribute('href'), base), hreflang: node.getAttribute('hreflang') || '',
+            type: node.getAttribute('type') || '', sizes: node.getAttribute('sizes') || ''
+        }));
+        const titles = Array.from(doc.head.querySelectorAll('title')).filter(node => node.namespaceURI === 'http://www.w3.org/1999/xhtml').map(node => node.textContent.trim());
+        const canonicals = links.filter(link => link.rel.toLowerCase().split(/\s+/).includes('canonical'));
+        const headings = Array.from(doc.querySelectorAll('h1,h2,h3,h4,h5,h6')).map(node => ({ level: Number(node.tagName[1]), text: node.textContent.trim().replace(/\s+/g, ' ') }));
+        const jsonLd = Array.from(doc.querySelectorAll('script[type]')).filter(node => node.getAttribute('type').split(';')[0].trim().toLowerCase() === 'application/ld+json').map((node, index) => {
+            const raw = node.textContent.trim();
+            let data;
+            try { data = JSON.parse(raw); }
+            catch (error) { return { index: index + 1, raw, valid: false, error: error.message, types: [] }; }
+            const types = new Set();
+            const stack = [data];
+            while (stack.length) {
+                const value = stack.pop();
+                if (value && typeof value === 'object' && !Object.prototype.hasOwnProperty.call(value, '@value')) {
+                    const type = value['@type'];
+                    for (const item of Array.isArray(type) ? type : [type]) if (typeof item === 'string') types.add(item);
+                    for (const [key, item] of Object.entries(value)) if (key !== '@context' && item && typeof item === 'object') stack.push(item);
+                }
+            }
+            const objectLike = data !== null && typeof data === 'object';
+            return { index: index + 1, raw, data, valid: true, objectLike, types: Array.from(types) };
+        });
+        const ogImages = [];
+        for (const meta of metas) {
+            const key = meta.key.toLowerCase();
+            if (key === 'og:image' || key === 'og:image:url') ogImages.push({ raw: meta.value, url: httpUrl(meta.value, base) });
+            else if (key.startsWith('og:image:') && ogImages.length) {
+                const field = key.slice(9);
+                const last = ogImages[ogImages.length - 1];
+                if (!(field in last)) last[field] = meta.value;
+            }
+        }
+        const report = {
+            inspectedAt: new Date().toISOString(), requestedUrl: page.requestedUrl, url: page.url, baseUrl: base, rawBase,
+            method: page.method, httpStatus: page.httpStatus, proxy: page.proxy, robotsHeader: page.robotsHeader,
+            title: titles[0] || '', titles, description: get('description'), language: doc.documentElement.lang,
+            canonical: canonicals[0]?.resolved || '', canonicals, metas, links, headings, jsonLd, ogImages,
+            imageCount: doc.querySelectorAll('img').length, missingAltCount: doc.querySelectorAll('img:not([alt])').length,
+            microdataCount: doc.querySelectorAll('[itemscope]').length, rdfaCount: doc.querySelectorAll('[typeof]').length
+        };
+        const pick = (...keys) => {
+            for (const key of keys) {
+                const value = key === '<title>' ? report.title : get(key);
+                if (value) return { value, source: key };
+            }
+            return { value: '', source: 'not declared' };
+        };
+        const firstImage = ogImages[0];
+        const ogImage = firstImage ? httpUrl(firstImage.secure_url, base) || firstImage.url : '';
+        const ogImageSource = firstImage ? (httpUrl(firstImage.secure_url, base) ? 'og:image:secure_url' : 'og:image') : 'not declared';
+        const twitterImage = pick('twitter:image', 'twitter:image:src');
+        report.previews = {
+            og: { title: pick('og:title', '<title>'), description: pick('og:description', 'description'), image: ogImage, imageSource: ogImageSource, alt: firstImage?.alt || '', url: httpUrl(get('og:url'), base) || page.url, site: get('og:site_name') },
+            twitter: { title: pick('twitter:title', 'og:title', '<title>'), description: pick('twitter:description', 'og:description', 'description'), image: twitterImage.value ? httpUrl(twitterImage.value, base) : ogImage, imageSource: twitterImage.value ? twitterImage.source : ogImageSource, alt: get('twitter:image:alt') || firstImage?.alt || '', url: page.url, card: get('twitter:card') || 'not declared' },
+            search: { title: pick('<title>'), description: pick('description'), url: report.canonical || page.url, site: get('og:site_name') }
+        };
+        report.checks = buildChecks(report, get);
+        return report;
+    }
+
+    function buildChecks(report, get) {
+        const checks = [];
+        const add = (kind, text) => checks.push({ kind, text });
+        add(report.title ? 'good' : 'warn', report.title ? `Page title: ${Array.from(report.title).length} characters.` : 'Page title is missing or empty.');
+        add(report.description ? 'good' : 'warn', report.description ? `Meta description: ${Array.from(report.description).length} characters.` : 'Meta description is missing or empty.');
+        if (report.titles.length > 1) add('warn', 'Multiple title elements; the first is used here.');
+        for (const key of ['description', 'twitter:card', 'twitter:title', 'twitter:description']) {
+            if (report.metas.filter(meta => meta.key.toLowerCase() === key).length > 1) add('warn', `Multiple ${key} tags; inspect their values for conflicts.`);
+        }
+        add(report.canonical ? 'good' : 'warn', report.canonical ? 'Canonical URL is declared.' : report.canonicals.length ? 'Canonical URL is empty, unresolved, or not HTTP(S).' : 'No canonical link is declared.');
+        if (report.canonicals.length > 1) add('warn', 'Multiple canonical links; check for conflicting destinations.');
+        if (report.canonical && get('og:url') && report.canonical !== httpUrl(get('og:url'), report.baseUrl)) add('warn', 'Canonical and Open Graph URLs differ. This may be intentional.');
+        if (report.rawBase && !httpUrl(report.rawBase, report.url)) add('warn', 'The base URL could not be resolved; the supplied page URL is used.');
+        const missingOg = ['og:title', 'og:type', 'og:url'].filter(key => !get(key));
+        if (!report.ogImages[0]?.raw.trim()) missingOg.push('og:image');
+        add(missingOg.length ? 'warn' : 'good', missingOg.length ? `Core Open Graph fields missing: ${missingOg.join(', ')}.` : 'All four core Open Graph fields are present.');
+        for (const [label, raw] of [['og:url', get('og:url')], ['og:image', report.ogImages[0]?.raw], ['twitter:image', get('twitter:image') || get('twitter:image:src')]]) {
+            if (raw && !httpUrl(raw, report.baseUrl)) add('warn', `${label} cannot be resolved to an HTTP(S) URL.`);
+            else if (raw && !httpUrl(raw)) add('warn', `${label} uses a relative URL. An absolute URL is safer for sharing.`);
+        }
+        if (report.ogImages.length && !report.ogImages[0].alt) add('warn', 'The first Open Graph image has no og:image:alt.');
+        const card = get('twitter:card');
+        if (!card) add('warn', 'No twitter:card declared; the X preview shows a possible summary fallback.');
+        else if (!['summary', 'summary_large_image'].includes(card)) add('warn', `X card type “${card}” is not simulated; its text and image are shown only.`);
+        const robots = report.metas.filter(meta => /^(robots|googlebot|bingbot|googlebot-news)$/i.test(meta.key));
+        const blocking = robots.filter(meta => /\b(noindex|none)\b/i.test(meta.value));
+        if (blocking.length) add('warn', `Indexing restrictions declared in: ${blocking.map(meta => meta.key).join(', ')}.`);
+        else add('good', 'No noindex directive found in the inspected robots meta tags.');
+        if (report.robotsHeader && /\b(noindex|none)\b/i.test(report.robotsHeader)) add('warn', 'The exposed X-Robots-Tag header includes an indexing restriction.');
+        add(report.language ? 'good' : 'warn', report.language ? `HTML language: ${report.language}.` : 'HTML language is not declared.');
+        const h1s = report.headings.filter(heading => heading.level === 1).length;
+        add(h1s === 1 ? 'good' : 'warn', `${h1s} H1 heading${h1s === 1 ? '' : 's'} found${h1s > 1 ? '; review the page structure' : ''}.`);
+        if (report.missingAltCount) add('warn', `${report.missingAltCount} of ${report.imageCount} page images lack an alt attribute.`);
+        const invalid = report.jsonLd.filter(block => !block.valid).length;
+        if (invalid) add('error', `${invalid} JSON-LD block${invalid === 1 ? ' has' : 's have'} invalid JSON syntax.`);
+        if (report.jsonLd.some(block => block.valid && !block.objectLike)) add('warn', 'A JSON-LD block is a primitive or null; JSON-LD expects an object or array.');
+        if (!report.jsonLd.length) add('info', 'No JSON-LD blocks found. Structured data is optional for many pages.');
+        else if (!invalid) add('good', `${report.jsonLd.length} JSON-LD block${report.jsonLd.length === 1 ? '' : 's'} with valid JSON syntax.`);
+        return checks;
+    }
+
+    function table(target, rows, headings = ['Field', 'Value']) {
+        target.replaceChildren();
+        if (!rows.length) { target.append(element('p', 'note', 'None found in this HTML.')); return; }
+        const wrap = element('div', 'table-wrap');
+        const tableNode = element('table');
+        const head = element('thead');
+        const tr = element('tr');
+        headings.forEach(text => { const th = element('th', '', text); th.scope = 'col'; tr.append(th); });
+        head.append(tr);
+        const body = element('tbody');
+        rows.forEach(row => {
+            const tr = element('tr');
+            row.forEach(value => { const td = element('td'); typeof value === 'string' ? td.textContent = value : td.append(value); tr.append(td); });
+            body.append(tr);
+        });
+        tableNode.append(head, body); wrap.append(tableNode); target.append(wrap);
+    }
+
+    function urlValue(raw, resolved) {
+        const container = element('div');
+        if (resolved) {
+            const a = element('a', '', raw || resolved);
+            a.href = resolved; a.target = '_blank'; a.rel = 'noopener noreferrer';
+            container.append(a);
+            if (raw && raw !== resolved) container.append(element('span', 'note', `Resolved: ${resolved}`));
+        } else container.textContent = raw ? `${raw} (unresolved or unsupported URL)` : 'Not declared';
+        return container;
+    }
+
+    function imageSlot(data, load) {
+        const slot = element('div', 'card-image');
+        if (!data.image) { slot.append(element('span', '', 'No usable image declared')); return slot; }
+        const placeholder = element('span', '', load ? 'Loading preview image…' : 'Image not loaded');
+        slot.append(placeholder);
+        slot.dataset.image = data.image;
+        slot.dataset.alt = data.alt || '';
+        if (load) loadImage(slot);
+        return slot;
+    }
+
+    function loadImage(slot) {
+        if (slot.dataset.loaded) return;
+        slot.dataset.loaded = 'true';
+        const img = element('img');
+        img.alt = slot.dataset.alt || 'Link preview image';
+        img.referrerPolicy = 'no-referrer';
+        img.decoding = 'async';
+        img.addEventListener('load', () => { slot.replaceChildren(img); });
+        img.addEventListener('error', () => { slot.replaceChildren(element('span', '', 'Image could not be loaded')); });
+        img.src = slot.dataset.image;
+    }
+
+    function renderPreviews(report, load) {
+        $('previews').replaceChildren();
+        const labels = { og: 'Open Graph', twitter: 'X / Twitter', search: 'Search result' };
+        for (const [kind, data] of Object.entries(report.previews)) {
+            const section = element('div', 'preview-section');
+            const label = element('h3', 'preview-label', labels[kind]);
+            label.append(element('span', '', kind === 'og' ? 'Facebook · LinkedIn' : kind === 'search' ? 'Illustrative' : data.card));
+            const card = element('div', 'share-card' + (kind === 'search' ? ' search-card' : kind === 'twitter' && data.card !== 'summary_large_image' ? ' summary-card' : ''));
+            if (kind !== 'search') card.append(imageSlot(data, load));
+            const body = element('div', 'card-body');
+            let host = '';
+            try { host = new URL(data.url).hostname; } catch { /* A pasted fragment may have no URL. */ }
+            body.append(element('div', 'card-domain', data.site || host || 'No page URL supplied'));
+            body.append(element('div', 'card-title clamp', data.title.value || 'No title declared'));
+            body.append(element('div', 'card-description clamp', data.description.value || 'No description declared'));
+            card.append(body);
+            const sources = element('p', 'sources', `Title: ${data.title.source} · Description: ${data.description.source}${kind === 'search' ? '' : ` · Image: ${data.imageSource}`}`);
+            section.append(label, card, sources);
+            $('previews').append(section);
+        }
+        $('load-images').hidden = load || !Object.values(report.previews).some(data => data.image);
+    }
+
+    $('load-images').addEventListener('click', () => {
+        $('previews').querySelectorAll('[data-image]').forEach(loadImage);
+        $('load-images').hidden = true;
+    });
+
+    function renderReport(report, load) {
+        $('report-title').textContent = report.url || 'HTML inspection';
+        $('report-source').textContent = `${report.method} · ${new Date(report.inspectedAt).toLocaleString()}${report.httpStatus ? ` · Website HTTP ${report.httpStatus}` : ' · Website HTTP status unavailable'}`;
+        const issues = report.checks.filter(check => check.kind === 'warn' || check.kind === 'error').length;
+        $('stats').replaceChildren(element('span', 'badge ' + (issues ? 'warn' : 'good'), `${issues} item${issues === 1 ? '' : 's'} to review`), element('span', 'badge', `${report.metas.length} meta tags`), element('span', 'badge', `${report.jsonLd.length} JSON-LD blocks`));
+        renderPreviews(report, load);
+        $('checks').replaceChildren();
+        for (const check of report.checks) {
+            const li = element('li');
+            const symbol = element('span', `check-symbol ${check.kind}`, { good: '✓', warn: '!', error: '×', info: 'i' }[check.kind]);
+            symbol.setAttribute('aria-label', { good: 'Present:', warn: 'Review:', error: 'Error:', info: 'Information:' }[check.kind]);
+            li.append(symbol, element('span', '', check.text)); $('checks').append(li);
+        }
+        const rows = [['Title', report.title || 'Not declared'], ['Description', report.description || 'Not declared'], ['HTML language', report.language || 'Not declared'], ['Document URL', urlValue(report.url, report.url)]];
+        if (report.requestedUrl && report.requestedUrl !== report.url) rows.push(['Requested URL', urlValue(report.requestedUrl, report.requestedUrl)]);
+        rows.push(['Canonical', urlValue(report.canonicals[0]?.href, report.canonical)]);
+        if (report.rawBase) rows.push(['Base URL', urlValue(report.rawBase, httpUrl(report.rawBase, report.url))]);
+        const wanted = /^(robots|googlebot|googlebot-news|bingbot|viewport|author|generator|theme-color|application-name|keywords|referrer)$/i;
+        report.metas.filter(meta => wanted.test(meta.key)).forEach(meta => rows.push([meta.key, meta.value || '(empty)']));
+        rows.push(['X-Robots-Tag', report.robotsHeader || 'Unavailable — not returned or not exposed to the browser']);
+        report.links.filter(link => /\b(alternate|icon|manifest)\b/i.test(link.rel)).forEach(link => rows.push([`${link.rel}${link.hreflang ? ` · ${link.hreflang}` : ''}`, urlValue(link.href, link.resolved)]));
+        rows.push(['Images', `${report.imageCount} total · ${report.missingAltCount} missing alt attributes`], ['Other structured markup', `${report.microdataCount} microdata scopes · ${report.rdfaCount} RDFa typeof attributes (not expanded)`]);
+        table($('metadata'), rows);
+        const social = report.metas.filter(meta => /^(og:|twitter:|article:|profile:|book:|music:|video:|fb:)/i.test(meta.key));
+        $('social-count').textContent = social.length;
+        table($('social-tags'), social.map(meta => [meta.key, meta.value || '(empty)']));
+        $('json-count').textContent = report.jsonLd.length;
+        $('json-ld').replaceChildren();
+        if (!report.jsonLd.length) $('json-ld').append(element('p', 'note footnote', 'No application/ld+json scripts found.'));
+        for (const block of report.jsonLd) {
+            const section = element('section', 'json-block');
+            const heading = element('div', 'json-heading');
+            const title = element('h3', '', `Block ${block.index} `);
+            title.append(element('span', 'badge ' + (block.valid ? 'good' : 'error'), block.valid ? 'JSON syntax valid' : 'Invalid JSON'));
+            const copy = element('button', '', 'Copy JSON'); copy.type = 'button';
+            let formatted = block.raw;
+            if (block.valid) { try { formatted = JSON.stringify(block.data, null, 2); } catch { /* Keep raw deeply nested JSON readable. */ } }
+            copy.addEventListener('click', async () => {
+                try { await navigator.clipboard.writeText(formatted); copy.textContent = 'Copied'; setTimeout(() => copy.textContent = 'Copy JSON', 1800); }
+                catch { status('Clipboard unavailable. Select the JSON text and copy it manually.', true); }
+            });
+            heading.append(title, copy); section.append(heading);
+            if (block.types.length) section.append(element('p', 'note footnote', `Types: ${block.types.join(', ')}`));
+            if (block.valid && !block.objectLike) section.append(element('p', 'json-error', 'Valid JSON, but JSON-LD expects an object or array.'));
+            if (!block.valid) section.append(element('p', 'json-error', block.error));
+            const pre = element('pre', '', formatted); pre.tabIndex = 0; section.append(pre);
+            $('json-ld').append(section);
+        }
+        $('heading-count').textContent = report.headings.length;
+        const outline = element('ol', 'outline');
+        for (const heading of report.headings) {
+            const li = element('li'); li.style.paddingLeft = `${(heading.level - 1) * 12}px`;
+            li.append(element('code', '', `H${heading.level}`), document.createTextNode(heading.text || '(empty)')); outline.append(li);
+        }
+        $('outline').replaceChildren(report.headings.length ? outline : element('p', 'note', 'No headings found.'));
+        $('all-count').textContent = report.metas.length + report.links.length;
+        table($('all-tags'), [...report.metas.map(meta => [meta.key, meta.attributes]), ...report.links.map(link => [`link: ${link.rel || '(no rel)'}`, `${link.href}${link.hreflang ? ` · hreflang=${link.hreflang}` : ''}${link.type ? ` · type=${link.type}` : ''}${link.sizes ? ` · sizes=${link.sizes}` : ''}`])], ['Tag', 'Attributes / value']);
+        $('limitations').textContent = `Inspected the supplied HTML; scripts are not executed and JavaScript-added metadata may be absent. Robots.txt, crawler access, schema eligibility, and unexposed HTTP headers are not checked.${report.proxy ? ' The document URL and HTTP status are reported by Jina Reader. If redirects are not reflected, paste HTML with the final page URL to resolve relative links.' : ''}`;
+        $('empty-state').hidden = true;
+        $('results').hidden = false;
+    }
+
+    function inspect(page, loadImages) {
+        const report = parsePage(page);
+        renderReport(report, loadImages);
+        currentReport = report;
+        status(`Inspection complete. ${report.metas.length} meta tags and ${report.jsonLd.length} JSON-LD blocks found.`);
+    }
+
+    $('export').addEventListener('click', () => {
+        if (!currentReport) return;
+        const blob = new Blob([JSON.stringify(currentReport, (key, value) => key === 'data' ? undefined : value, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = element('a'); link.href = url;
+        let host = 'html';
+        try { host = new URL(currentReport.url).hostname.replace(/[^a-z\d.-]/gi, '-'); } catch { /* Use a generic filename for pasted HTML. */ }
+        link.download = `seo-${host}.json`; link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+</script>
+</body>
+</html>
